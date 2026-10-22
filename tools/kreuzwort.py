@@ -602,11 +602,11 @@ def pruefen(puzzle_pfad, html_pruefen=True):
             t = loes.read_text(encoding='utf-8')
             ok(t.count('class="l"') == sum(ch != BLOCK for z in raster for ch in z),
                'raetsel-loesung.html: nicht alle Buchstaben eingetragen.')
+        ok((basis / 'docs' / 'index.html').exists() or not blatt.exists(), 'docs/index.html fehlt.')
         site = basis / f'{p["github_user"]}.github.io'
         if site.exists():
-            for datei in ('_loesung/index.html', '404.html', '.github/workflows/pages.yml'):
-                ok((site / datei).exists(), f'{site.name}/{datei} fehlt.')
-            # das Repo ist öffentlich: nirgends darf das Lösungswort stehen
+            ok((site / '404.html').exists(), f'{site.name}/404.html fehlt.')
+            # die 404-Seite fängt falsche Lösungen ab: sie darf das Wort nicht verraten
             for f in site.rglob('*'):
                 if '.git' in f.relative_to(site).parts[:1]:
                     continue
@@ -833,7 +833,7 @@ const TEXTE = {js};
 </head>
 <body>
 <main class="seite">
-  <div class="kopf"><span id="wort">Lösung</span><span class="status">● Gelöst</span></div>
+  <div class="kopf"><span>{esc(p['loesungswort'])}</span><span class="status">● Gelöst</span></div>
   <h1>Richtig<br>gedacht<span class="punkt">.</span></h1>
   <p class="intro" data-text="intro">{esc(t['intro'])}</p>
   <section class="infos">{infos}
@@ -844,10 +844,6 @@ document.querySelectorAll('[data-text]').forEach(function (el) {{
   var v = TEXTE[el.dataset.text];
   if (v != null) el.textContent = v;
 }});
-// Lösungswort steht nicht im Quelltext (öffentliches Repo) – es kommt aus der URL.
-var teile = location.pathname.split('/').filter(function (s) {{ return s && s !== 'index.html'; }});
-var wort = teile[teile.length - 1];
-if (/^[a-z]+$/.test(wort || '')) document.getElementById('wort').textContent = wort.toUpperCase();
 </script>
 </body>
 </html>
@@ -894,80 +890,19 @@ def rendern(puzzle_pfad, cfg_roh, basis):
     basis = Path(basis)
     (basis / 'raetsel.html').write_text(blatt_html(p, cfg_roh, False), encoding='utf-8')
     (basis / 'raetsel-loesung.html').write_text(blatt_html(p, cfg_roh, True), encoding='utf-8')
-    # Inhalt des (öffentlichen) Repos <user>.github.io. Das Lösungswort steht dort nirgends:
-    # die Action legt _loesung/ beim Deploy unter dem Namen aus dem Secret LOESUNGSWORT ab.
+    # GitHub Pages: das Projekt-Repo heißt wie das Lösungswort und veröffentlicht docs/
+    # → https://<user>.github.io/<loesungswort>/
+    docs = basis / 'docs'
+    docs.mkdir(exist_ok=True)
+    (docs / 'index.html').write_text(seite_html(p, cfg_roh.get('seite', {})), encoding='utf-8')
+    (docs / '404.html').write_text(fehlerseite_html(p), encoding='utf-8')
+    (docs / '.nojekyll').write_text('', encoding='utf-8')
+    # Repo <user>.github.io: nur die 404-Seite für falsche Lösungen (verrät das Wort nicht)
     site = basis / f'{p["github_user"]}.github.io'
-    (site / '_loesung').mkdir(parents=True, exist_ok=True)
-    (site / '.github' / 'workflows').mkdir(parents=True, exist_ok=True)
-    (site / '_loesung' / 'index.html').write_text(seite_html(p, cfg_roh.get('seite', {})), encoding='utf-8')
+    site.mkdir(exist_ok=True)
     (site / '404.html').write_text(fehlerseite_html(p), encoding='utf-8')
-    (site / '.github' / 'workflows' / 'pages.yml').write_text(PAGES_WORKFLOW, encoding='utf-8')
-    print(f'✓ raetsel.html, raetsel-loesung.html, {site.name}/_loesung/index.html, '
-          f'{site.name}/404.html, {site.name}/.github/workflows/pages.yml')
-
-
-PAGES_WORKFLOW = """\
-# Baut die Seite aus _loesung/ und 404.html und veröffentlicht sie auf GitHub Pages.
-# Der Ordnername (= Lösungswort, nur a-z) kommt aus dem Repo-Secret LOESUNGSWORT,
-# damit er im öffentlichen Repo und in den Logs nicht auftaucht.
-name: Pages
-
-on:
-  push:
-    branches: [main]
-  workflow_dispatch:
-
-permissions:
-  contents: read
-  pages: write
-  id-token: write
-  actions: write
-
-concurrency:
-  group: pages
-  cancel-in-progress: true
-
-jobs:
-  deploy:
-    runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Seite zusammenbauen
-        env:
-          WORT: ${{ secrets.LOESUNGSWORT }}
-        run: |
-          set -eu
-          wort="$(printf '%s' "$WORT" | tr 'A-Z' 'a-z')"
-          echo "::add-mask::$wort"
-          case "$wort" in
-            ''|*[!a-z]*) echo "Secret LOESUNGSWORT fehlt oder enthält andere Zeichen als a-z." >&2; exit 1 ;;
-          esac
-          mkdir -p "_site/$wort"
-          cp 404.html _site/404.html
-          cp _loesung/index.html "_site/$wort/index.html"
-          touch _site/.nojekyll
-
-      - uses: actions/configure-pages@v5
-
-      - uses: actions/upload-pages-artifact@v3
-        with:
-          path: _site
-          retention-days: 1
-
-      - id: deployment
-        uses: actions/deploy-pages@v4
-
-      - name: Build-Artefakt löschen (enthält den Ordnernamen)
-        if: always()
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          gh api "repos/${{ github.repository }}/actions/runs/${{ github.run_id }}/artifacts" --jq '.artifacts[].id' |
-            while read -r id; do gh api -X DELETE "repos/${{ github.repository }}/actions/artifacts/$id"; done
-"""
+    (site / '.nojekyll').write_text('', encoding='utf-8')
+    print(f'✓ raetsel.html, raetsel-loesung.html, docs/index.html, docs/404.html, {site.name}/404.html')
 
 
 # --------------------------------------------------------------------------- CLI

@@ -28,22 +28,18 @@ Lässt sich das Lösungswort nicht auf eigene Felder verteilen (Buchstabe fehlt 
 - `puzzle.json` – Raster (`#` = Blockfeld), Einträge mit Nummer/Position/Antwort/Hinweis, Lösungsfelder 1…n
 - `raetsel.html` – Druckblatt A4 (HTML/CSS in mm, vektoriell) – im Browser drucken, Ränder „Keine“, Hintergrundgrafiken an
 - `raetsel-loesung.html` – dasselbe mit eingetragenen Buchstaben
-- `rgn24.github.io/` – eigenes Git-Repo (öffentlich, GitHub Pages): `_loesung/index.html`, `404.html`, `.github/workflows/pages.yml`
+- `docs/` – Lösungsseite (`index.html`, `404.html`), wird von GitHub Pages veröffentlicht
+- `rgn24.github.io/` – eigenes Git-Repo, enthält nur die `404.html` für falsche Lösungen
 
 ## Texte Wann / Wo / Was
 Entweder in `raetsel.config.json` → `seite` eintragen und `rendern`, oder direkt oben in
-`rgn24.github.io/_loesung/index.html` im Block `const TEXTE = { … }` ändern (Zeilenumbruch: `\n`).
+`docs/index.html` im Block `const TEXTE = { … }` ändern (Zeilenumbruch: `\n`).
 Achtung: `rendern` überschreibt direkte Änderungen in der HTML-Datei. Danach veröffentlichen:
 ```bash
-cd rgn24.github.io && git commit -am "Texte" && git push
+git commit -am "Texte" && git push
 ```
-Hinweis: Das Pages-Repo ist öffentlich – die Texte sind dort für jeden lesbar.
+Das Repo ist öffentlich – die Texte sind dort für jeden lesbar.
 
-## GitHub Pages – warum kein Ordner `mahlzeit/` im Repo?
-Ein öffentliches Repo würde die Lösung verraten. Darum steht das Lösungswort nur im Repo-Secret
-`LOESUNGSWORT` (Kleinbuchstaben). Bei jedem Push baut `.github/workflows/pages.yml` die Seite,
-legt `_loesung/` unter `/<loesungswort>/` ab, veröffentlicht sie und löscht das Build-Artefakt.
-`pruefen` stellt sicher, dass das Wort in keiner Datei und keinem Pfad des Repos vorkommt.
-Neues Lösungswort: `gh secret set LOESUNGSWORT --repo rgn24/rgn24.github.io` und neu pushen.
-
-Repos: Projekt (privat) `rgn24/um-die-ecke-raetsel`, Seite (öffentlich) `rgn24/rgn24.github.io`.
+## GitHub Pages
+- Repo `rgn24/mahlzeit` (dieses Projekt) → Pages aus `main` / `docs` → **https://rgn24.github.io/mahlzeit/**
+- Repo `rgn24/rgn24.github.io` → nur `404.html` → jede falsche Adresse unter rgn24.github.io zeigt „Noch nicht ganz“.

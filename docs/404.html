@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Noch nicht ganz.</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#111111;--paper:#FFFFFF;--accent:#E2401C;--text:#333333;--text-2:#555555}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--paper)}
+body{font-family:'Hanken Grotesk',sans-serif;color:var(--ink);-webkit-font-smoothing:antialiased}
+.seite{min-height:100vh;min-height:100svh;max-width:1040px;margin:0 auto;padding:48px 56px;
+  display:flex;flex-direction:column}
+.kopf{display:flex;justify-content:space-between;gap:16px;font-size:12px;font-weight:700;
+  text-transform:uppercase;letter-spacing:.1em}
+.status{color:var(--accent)}
+h1{font-size:104px;font-weight:800;letter-spacing:-.05em;line-height:.9;margin:96px 0 0}
+.punkt{color:var(--accent)}
+.intro{font-size:17px;line-height:1.5;max-width:420px;margin:28px 0 0;color:var(--text);
+  text-wrap:pretty;white-space:pre-line}
+.infos{margin-top:auto;padding-top:64px;display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
+.info{border-top:2px solid var(--ink);padding-top:12px;display:flex;flex-direction:column;gap:6px}
+.info .nr{font-size:11px;font-weight:700;color:var(--accent)}
+.info h2{margin:0;font-size:18px;font-weight:700}
+.info p{margin:0;font-size:14px;line-height:1.45;color:var(--text-2);white-space:pre-line}
+@media (max-width:639px){
+  .seite{padding:32px 24px}
+  h1{font-size:60px;margin-top:64px}
+  .intro{font-size:16px}
+  .infos{grid-template-columns:1fr;gap:20px;padding-top:56px}
+}
+
+.adresse{margin-top:auto;padding-top:64px}
+.adresse .label{border-top:2px solid var(--ink);padding-top:12px;font-size:11px;font-weight:800;
+  text-transform:uppercase;letter-spacing:.1em}
+.zeile{display:flex;align-items:center;flex-wrap:wrap;gap:6px;margin-top:10px;font-size:18px;font-weight:500}
+.luecken{display:flex;gap:3px}
+.luecke{width:22px;height:26px;border-bottom:2px solid var(--accent)}
+@media (max-width:639px){.luecke{width:16px;height:22px}}
+</style>
+</head>
+<body>
+<main class="seite">
+  <div class="kopf"><span>404</span><span class="status">● Noch nicht</span></div>
+  <h1>Noch nicht<br>ganz<span class="punkt">.</span></h1>
+  <p class="intro">Noch nicht ganz – nochmal um die Ecke denken.</p>
+  <section class="adresse">
+    <div class="label">Lösung → Adresse</div>
+    <div class="zeile"><span>rgn24.github.io/</span><span class="luecken"><span class="luecke"></span><span class="luecke"></span><span class="luecke"></span><span class="luecke"></span><span class="luecke"></span><span class="luecke"></span><span class="luecke"></span><span class="luecke"></span></span></div>
+  </section>
+</main>
+</body>
+</html>
