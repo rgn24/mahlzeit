@@ -22,6 +22,7 @@ import json
 import random
 import re
 import sys
+import unicodedata
 from collections import defaultdict
 from pathlib import Path
 
@@ -44,7 +45,7 @@ HINWEIS_NR_B = 14 * PX
 KOPF_H = 34 * PX * 0.95 * 2 + 12 * PX + 2 * PX + 0.5
 FUSS_H = 2 * PX + 12 * PX + 9.5 * PX * 1.4 + 8 * PX + 26 * PX + 0.5
 # mittlere Zeichenbreite von Hanken Grotesk 400 in em (konservativ)
-ZEICHEN_EM = 0.50
+ZEICHEN_EM = 0.48
 
 H, V = 0, 1                       # Richtung waagerecht / senkrecht
 SCHRITT = {H: (0, 1), V: (1, 0)}
@@ -64,10 +65,21 @@ def normalisiere(wort):
     w = wort.strip().upper()
     for k, v in UMLAUTE.items():
         w = w.replace(k, v)
+    # übrige Akzente entfernen (É → E, Ł → L …)
+    w = w.replace('Ł', 'L').replace('Ø', 'O')
+    w = ''.join(ch for ch in unicodedata.normalize('NFKD', w) if not unicodedata.combining(ch))
     w = re.sub(r'[\s\-]', '', w)
     if not re.fullmatch(r'[A-Z]+', w):
         raise Fehler(f'Ungültiges Wort {wort!r}: nur Buchstaben (Umlaute werden zu AE/OE/UE) erlaubt.')
     return w
+
+
+def normalisiere_frei(text):
+    """Wie normalisiere, aber ohne Fehler für Satzzeichen (für Textvergleiche)."""
+    w = text.upper()
+    for k, v in UMLAUTE.items():
+        w = w.replace(k, v)
+    return ''.join(ch for ch in unicodedata.normalize('NFKD', w) if not unicodedata.combining(ch))
 
 
 def lade_config(pfad):
@@ -91,7 +103,7 @@ def lade_config(pfad):
             raise Fehler(f'Wort {e["wort"]!r} hat keinen Hinweis.')
         hinweise[w] = e['hinweis'].strip()
 
-    pflicht = []
+    pflicht = list(hinweise) if (cfg.get('generator') or {}).get('alle_pflicht') else []
     for e in cfg.get('loesungswoerter', []) or []:
         if isinstance(e, str):
             w = normalisiere(e)
@@ -100,7 +112,20 @@ def lade_config(pfad):
         else:
             w = normalisiere(e['wort'])
             hinweise[w] = e['hinweis'].strip()
-        pflicht.append(w)
+        if w not in pflicht:
+            pflicht.append(w)
+
+    for w, h in hinweise.items():
+        for ref in VERWEIS.findall(h):
+            if normalisiere(ref) not in hinweise:
+                raise Fehler(f'Hinweis zu {w}: Verweis {{{ref}}} ist kein Wort der Wortliste.')
+            if normalisiere(ref) == w:
+                raise Fehler(f'Hinweis zu {w} verweist auf sich selbst.')
+
+    druck = cfg.get('druck') or {}
+    global HINWEIS_FS, MIN_FELD
+    HINWEIS_FS = float(druck.get('hinweis_mm', 10.5 * PX))
+    MIN_FELD = float(druck.get('min_feld_mm', 7.0))
 
     loesung = normalisiere(cfg['loesungswort'])
     url_wort = loesung.lower()
@@ -126,32 +151,49 @@ def lade_config(pfad):
 
     return {
         'roh': cfg, 'hinweise': hinweise, 'pflicht': pflicht, 'loesung': loesung,
-        'url_wort': url_wort, 'R': R, 'C': C, 'frei': frei, 'user': user.lower(), 'projekt': projekt,
+        'url_wort': url_wort, 'R': R, 'C': C, 'frei': frei, 'zuschneiden': bool(form.get('zuschneiden', True)), 'user': user.lower(), 'projekt': projekt,
         'gen': cfg.get('generator', {}),
     }
 
 
-def hinweis_text(hinweis, wort):
-    return f'{hinweis} ({len(wort)})'
+VERWEIS = re.compile(r'\{([^{}]+)\}')
+RICHTUNG = {H: 'waagerecht', V: 'senkrecht'}
+
+
+def hinweis_text(hinweis, wort, verweise=None):
+    """Hinweis + Wortlänge. {Antwort} wird zum Verweis „7 waagerecht“ (ohne Liste: Platzhalter
+    gleicher Länge, damit die Platzschätzung stimmt)."""
+    def ersetze(m):
+        if verweise is None:
+            return '00 waagerecht'
+        ziel = normalisiere(m.group(1))
+        if ziel not in verweise:
+            raise Fehler(f'Hinweis zu {wort}: Verweis {{{m.group(1)}}} steht nicht im Raster.')
+        return verweise[ziel]
+    return f'{VERWEIS.sub(ersetze, hinweis)} ({len(wort)})'
 
 
 # --------------------------------------------------------------------------- Platzbudget Druck
 
-def feld_mm(R, C):
-    """Feldgröße: 11,25 mm laut Design, nur verkleinern, wenn das Raster sonst nicht passt."""
+MIN_FELD = 7.0          # kleinste Feldgröße (mm), die noch gut beschreibbar ist
+
+
+def platz_raster_und_hinweise():
+    return SEITE_H - RAND_O - RAND_U - KOPF_H - FUSS_H - 3 * BLOCK_ABSTAND
+
+
+def feld_mm(R, C, hinweis_h):
+    """Feldgröße: 11,25 mm laut Design; kleiner nur, wenn Raster + Hinweise sonst nicht aufs Blatt passen."""
     inhalt_b = SEITE_B - 2 * RAND_S
-    max_raster_h = 11 * FELD_MM + 12 * LINIE_MM          # Höhe des 11×11-Referenzrasters
     f = min(FELD_MM,
             (inhalt_b - (C + 1) * LINIE_MM) / C,
-            (max_raster_h - (R + 1) * LINIE_MM) / R)
-    return round(f, 3)
+            (platz_raster_und_hinweise() - hinweis_h - (R + 1) * LINIE_MM) / R)
+    return int(f * 20) / 20                                # auf 0,05 mm abrunden
 
 
 def hinweis_budget(R, C):
-    f = feld_mm(R, C)
-    raster_h = R * f + (R + 1) * LINIE_MM
-    inhalt_h = SEITE_H - RAND_O - RAND_U
-    return inhalt_h - KOPF_H - raster_h - FUSS_H - 3 * BLOCK_ABSTAND
+    """Maximale Hinweishöhe, bei der das Raster noch MIN_FELD große Felder hat."""
+    return platz_raster_und_hinweise() - R * MIN_FELD - (R + 1) * LINIE_MM
 
 
 def zeilen_fuer(text):
@@ -221,16 +263,32 @@ class Layout:
         return x
 
     def setze(self, w, r, c, d, text):
+        """Setzt das Wort; liefert die neu belegten Felder (für entferne)."""
         dr, dc = SCHRITT[d]
+        neu = []
         for i, ch in enumerate(w):
             rr, cc = r + dr * i, c + dc * i
             if self.g[rr][cc] is None:
                 self.g[rr][cc] = ch
                 self.nach_buchstabe[ch].append((rr, cc))
+                neu.append((rr, cc))
             self.richt[rr][cc] |= 1 << d
         self.woerter.append((w, r, c, d))
         self.benutzt.add(w)
         self.texte[d].append(text)
+        return neu
+
+    def entferne(self, neu):
+        """Macht das zuletzt gesetzte Wort rückgängig."""
+        w, r, c, d = self.woerter.pop()
+        dr, dc = SCHRITT[d]
+        for i in range(len(w)):
+            self.richt[r + dr * i][c + dc * i] &= ~(1 << d)
+        for (rr, cc) in neu:
+            self.nach_buchstabe[self.g[rr][cc]].remove((rr, cc))
+            self.g[rr][cc] = None
+        self.benutzt.discard(w)
+        self.texte[d].pop()
 
     def kandidaten(self, w):
         for i, ch in enumerate(w):
@@ -289,9 +347,15 @@ def versuch(rng, cfg, budget):
     if not gesetzt:
         return None
 
+    # Pflichtwörter per Tiefensuche: immer das Wort mit den wenigsten Möglichkeiten zuerst
     offen_pflicht = [w for w in pflicht if w != start]
+    knoten = [int(cfg['gen'].get('suche_knoten', 400))]
+    breite = int(cfg['gen'].get('suche_breite', 3))
+    if offen_pflicht and not setze_pflicht(lay, offen_pflicht, rng, passt_text, hinweise, knoten, breite):
+        return None
+    offen_pflicht = []
     while len(lay.woerter) < max_w:
-        ziele = offen_pflicht if offen_pflicht else [w for w in pool if w not in lay.benutzt]
+        ziele = [w for w in pool if w not in lay.benutzt]
         kands = []
         zeilen_belegt = {r for r in range(R) if any(lay.g[r])}
         spalten_belegt = {c for c in range(C) if any(lay.g[r][c] for r in range(R))}
@@ -325,11 +389,54 @@ def versuch(rng, cfg, budget):
     return lay
 
 
-def bewerte(lay):
-    raster = lay.raster()
-    R, C = lay.R, lay.C
+def zuschnitt(raster):
+    """Kleinstes Rechteck, das alle Buchstaben enthält: (r0, r1, c0, c1), Enden exklusiv."""
+    zeilen = [r for r, z in enumerate(raster) if set(z) != {BLOCK}]
+    spalten = [c for c in range(len(raster[0])) if any(z[c] != BLOCK for z in raster)]
+    return zeilen[0], zeilen[-1] + 1, spalten[0], spalten[-1] + 1
+
+
+def setze_pflicht(lay, offen, rng, passt_text, hinweise, knoten, breite=3):
+    if not offen:
+        return True
+    if knoten[0] <= 0:
+        return False
+    knoten[0] -= 1
+    mr, mc = (lay.R - 1) / 2.0, (lay.C - 1) / 2.0
+    wahl = None
+    for w in offen:
+        kands = {k for k in lay.kandidaten(w) if passt_text(w, k[3])}
+        if not kands:
+            return False
+        if wahl is None or len(kands) < len(wahl[1]):
+            wahl = (w, kands)
+    w, kands = wahl
+
+    def punkte(k):
+        x, r, c, d = k
+        dr, dc = SCHRITT[d]
+        mitte_r, mitte_c = r + dr * (len(w) - 1) / 2.0, c + dc * (len(w) - 1) / 2.0
+        return 4 * x - 0.4 * (abs(mitte_r - mr) + abs(mitte_c - mc)) + rng.random() * 3
+
+    rest = [v for v in offen if v != w]
+    for (x, r, c, d) in sorted(kands, key=punkte, reverse=True)[:breite]:
+        neu = lay.setze(w, r, c, d, hinweis_text(hinweise[w], w))
+        if setze_pflicht(lay, rest, rng, passt_text, hinweise, knoten, breite):
+            return True
+        lay.entferne(neu)
+    return False
+
+
+def bewerte(lay, zuschneiden=True):
+    """Liefert (Punkte, Zuschnitt, Feldgröße mm)."""
+    voll = lay.raster()
+    r0, r1, c0, c1 = zuschnitt(voll) if zuschneiden else (0, lay.R, 0, lay.C)
+    raster = [z[c0:c1] for z in voll[r0:r1]]
+    R, C = r1 - r0, c1 - c0
+    hinweis_h = max(spalten_hoehe(lay.texte[H]), spalten_hoehe(lay.texte[V]))
+    f = feld_mm(R, C, hinweis_h)
     buchstaben = sum(ch != BLOCK for z in raster for ch in z)
-    kreuz = sum(1 for r in range(R) for c in range(C) if lay.richt[r][c] == 3)
+    kreuz = sum(1 for r in range(lay.R) for c in range(lay.C) if lay.richt[r][c] == 3)
     leer_z = sum(1 for z in raster if set(z) == {BLOCK})
     leer_s = sum(1 for c in range(C) if all(raster[r][c] == BLOCK for r in range(R)))
     # große schwarze Flächen vermeiden: leere 3×3-Fenster zählen
@@ -337,8 +444,10 @@ def bewerte(lay):
         1 for r in range(R - 2) for c in range(C - 2)
         if all(raster[r + i][c + j] == BLOCK for i in range(3) for j in range(3)))
     nh, nv = len(lay.texte[H]), len(lay.texte[V])
-    return (1.0 * buchstaben + 5 * kreuz - 25 * (leer_z + leer_s) - 4 * leer_fenster
-            - 3 * abs(nh - nv) + 2 * len(lay.woerter))
+    dichte = buchstaben / float(R * C)
+    s = (1.0 * buchstaben + 5 * kreuz - 25 * (leer_z + leer_s) - 4 * leer_fenster
+         - 3 * abs(nh - nv) + 2 * len(lay.woerter) + 6 * f + 40 * dichte)
+    return s, (r0, r1, c0, c1), f
 
 
 # --------------------------------------------------------------------------- Nummerierung
@@ -459,6 +568,7 @@ def erzeugen(cfg, ausgabe, seed=None, versuche=None):
     seed = int(seed if seed is not None else cfg['gen'].get('seed', 1))
     versuche = int(versuche if versuche is not None else cfg['gen'].get('versuche', 600))
     budget = hinweis_budget(cfg['R'], cfg['C'])
+    zuschneiden = cfg['zuschneiden']
     rng = random.Random(seed)
 
     beste, beste_s, gueltig, ohne_paarung = None, None, 0, 0
@@ -470,10 +580,12 @@ def erzeugen(cfg, ausgabe, seed=None, versuche=None):
         if paarung(raster, loesung) is None:
             ohne_paarung += 1
             continue
+        s, schnitt, f = bewerte(lay, zuschneiden)
+        if f < MIN_FELD:
+            continue
         gueltig += 1
-        s = bewerte(lay)
         if beste_s is None or s > beste_s:
-            beste, beste_s = lay, s
+            beste, beste_s, beste_schnitt, beste_f = lay, s, schnitt, f
 
     if beste is None:
         grund = (f'In {versuche} Versuchen ließ sich „{loesung}“ in keinem Raster auf '
@@ -483,17 +595,20 @@ def erzeugen(cfg, ausgabe, seed=None, versuche=None):
         raise Fehler('Keine Paarung zwischen Lösungswort und Lösungswörtern gefunden. ' + grund
                      + ' Tipp: Wortliste erweitern, Form vergrößern oder --versuche erhöhen.')
 
-    raster = beste.raster()
+    r0, r1, c0, c1 = beste_schnitt
+    raster = [z[c0:c1] for z in beste.raster()[r0:r1]]
     nummern, waag, senk = nummeriere(raster)
-    gesetzt = {(w, r, c, d) for (w, r, c, d) in beste.woerter}
+    gesetzt = {(w, r - r0, c - c0, d) for (w, r, c, d) in beste.woerter}
     eintraege = []
     for d, liste in ((H, waag), (V, senk)):
         for e in liste:
             assert (e['antwort'], e['zeile'], e['spalte'], d) in gesetzt, e
             e['richtung'] = d
             e['laenge'] = len(e['antwort'])
-            e['hinweis'] = hinweis_text(cfg['hinweise'][e['antwort']], e['antwort'])
             eintraege.append(e)
+    verweise = {e['antwort']: f'{e["nr"]} {RICHTUNG[e["richtung"]]}' for e in eintraege}
+    for e in eintraege:
+        e['hinweis'] = hinweis_text(cfg['hinweise'][e['antwort']], e['antwort'], verweise)
 
     felder = waehle_loesungsfelder(raster, loesung, eintraege, rng)
     if felder is None:
@@ -509,9 +624,10 @@ def erzeugen(cfg, ausgabe, seed=None, versuche=None):
         'github_user': cfg['user'],
         'projekt': cfg['projekt'],
         'url': f'https://{cfg["user"]}.github.io/{cfg["projekt"]}/',
-        'zeilen': cfg['R'],
-        'spalten': cfg['C'],
-        'feld_mm': feld_mm(cfg['R'], cfg['C']),
+        'zeilen': len(raster),
+        'spalten': len(raster[0]),
+        'feld_mm': beste_f,
+        'hinweis_mm': HINWEIS_FS,
         'raster': raster,
         'legende': {'#': 'Blockfeld', 'A–Z': 'Buchstabe (Ä/Ö/Ü = AE/OE/UE)'},
         'waagerecht': [ohne_richtung(e) for e in eintraege if e['richtung'] == H],
@@ -570,6 +686,17 @@ def pruefen(puzzle_pfad, html_pruefen=True):
         for c in range(C):
             if raster[r][c] != BLOCK:
                 ok((r, c) in abgedeckt, f'Feld ({r},{c}) gehört zu keinem Wort.')
+
+    # kein Hinweis verrät eine Antwort (auch über Wortgrenzen, z. B. „Apple Tree Garden“)
+    antworten = {e['antwort'] for e in p['waagerecht'] + p['senkrecht']}
+    for e in p['waagerecht'] + p['senkrecht']:
+        ok('{' not in e['hinweis'], f'Hinweis {e["nr"]}: unaufgelöster Verweis.')
+        toks = [re.sub(r'[^A-Z]', '', normalisiere_frei(x)) for x in e['hinweis'].split()]
+        for i in range(len(toks)):
+            for j in range(i + 1, min(i + 4, len(toks)) + 1):
+                stueck = ''.join(toks[i:j])
+                ok(not (stueck in antworten and len(stueck) >= 3),
+                   f'Hinweis {e["nr"]} ({e["antwort"]}) verrät die Antwort {stueck}.')
 
     # keine Antwort doppelt
     alle = [e['antwort'] for e in p['waagerecht'] + p['senkrecht']]
@@ -648,7 +775,7 @@ FONT_LINK = ('<link rel="preconnect" href="https://fonts.googleapis.com">\n'
 BLATT_CSS = """
 :root{
   --ink:#111111; --paper:#FFFFFF; --accent:#E2401C;
-  --cell:%(cell)smm; --line:0.375mm; --cols:%(cols)s;
+  --cell:%(cell)smm; --line:0.375mm; --cols:%(cols)s; --hfs:%(hfs)smm;
 }
 @page{size:A4;margin:0}
 *{box-sizing:border-box}
@@ -685,7 +812,7 @@ body{font-family:'Hanken Grotesk',sans-serif;color:var(--ink);
   font-size:calc(var(--cell) * .5);font-weight:700}
 
 /* Hinweise */
-.hinweise{display:grid;grid-template-columns:1fr 1fr;gap:9mm;font-size:3.9375mm;line-height:1.4}
+.hinweise{display:grid;grid-template-columns:1fr 1fr;gap:9mm;font-size:var(--hfs);line-height:1.4}
 .spalte{display:flex;flex-direction:column;gap:2.25mm}
 .spalte h2{margin:0;font-weight:800;text-transform:uppercase;letter-spacing:.1em;font-size:3.5625mm}
 .h{display:flex;gap:2.25mm}
@@ -745,7 +872,7 @@ def blatt_html(p, cfg_roh, mit_loesung):
         f'<div class="slot"><span class="si">{i + 1}</span>{esc(ch.lower()) if mit_loesung else ""}</div>'
         for i, ch in enumerate(p['loesungswort']))
 
-    css = BLATT_CSS % {'cell': p['feld_mm'], 'cols': p['spalten']}
+    css = BLATT_CSS % {'cell': p['feld_mm'], 'cols': p['spalten'], 'hfs': p.get('hinweis_mm', 10.5 * PX)}
     titel = 'Um die Ecke gedacht – Lösung' if mit_loesung else 'Um die Ecke gedacht'
     return f"""<!DOCTYPE html>
 <html lang="de">

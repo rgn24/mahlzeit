@@ -5,21 +5,24 @@
   "github_user": "rgn24",
   "projekt": "romanhatgeburtstag",
   "url": "https://rgn24.github.io/romanhatgeburtstag/",
-  "zeilen": 11,
-  "spalten": 11,
-  "feld_mm": 11.25,
+  "zeilen": 13,
+  "spalten": 24,
+  "feld_mm": 6.95,
+  "hinweis_mm": 3.1,
   "raster": [
-    "APPETIT####",
-    "##F###O#K##",
-    "#MAIS#M#I#S",
-    "Z#N###A#R#C",
-    "I#NACHTISCH",
-    "TEE###E#C#N",
-    "R####K##H#I",
-    "O####R#SEKT",
-    "N#SCHALE##Z",
-    "E####U#N##E",
-    "##KARTOFFEL"
+    "#Z#####T########RAGECAGE",
+    "#EBBLEWOI##D########O###",
+    "#I#####R###U#####M##D###",
+    "#T#C#AIRFRIER#JUICYBEATS",
+    "#R#O###E###S#####W##N##W",
+    "#A#S###D###S##W##I##A##I",
+    "#E#APPLETREEGARDEN##M##M",
+    "#T#N###M###L##O##D##E##M",
+    "#S#O###B###D##C##H##S##B",
+    "#E#S#SNACKBOX#L##U#####A",
+    "#L#T###R###R##A#UNIQLO#D",
+    "###R###R###F##W##D######",
+    "HULA#OLAF###############"
   ],
   "legende": {
     "#": "Blockfeld",
@@ -27,174 +30,198 @@
   },
   "waagerecht": [
     {
-      "nr": 1,
+      "nr": 3,
       "zeile": 0,
-      "spalte": 0,
-      "antwort": "APPETIT",
-      "laenge": 7,
-      "hinweis": "Kommt beim Essen (7)"
+      "spalte": 16,
+      "antwort": "RAGECAGE",
+      "laenge": 8,
+      "hinweis": "Lieblingsspiel bei 13 waagerecht (leider ohne uns) (8)"
     },
     {
       "nr": 5,
-      "zeile": 2,
+      "zeile": 1,
       "spalte": 1,
-      "antwort": "MAIS",
-      "laenge": 4,
-      "hinweis": "Platzt im Kino vor Spannung (4)"
-    },
-    {
-      "nr": 8,
-      "zeile": 4,
-      "spalte": 2,
-      "antwort": "NACHTISCH",
-      "laenge": 9,
-      "hinweis": "Ein Möbel für die Nacht? Eher süß (9)"
+      "antwort": "EBBLEWOI",
+      "laenge": 8,
+      "hinweis": "Hessisch für Fortgeschrittene, flüssig serviert? (8)"
     },
     {
       "nr": 9,
-      "zeile": 5,
-      "spalte": 0,
-      "antwort": "TEE",
-      "laenge": 3,
-      "hinweis": "Begleitet das Abwarten (3)"
+      "zeile": 3,
+      "spalte": 5,
+      "antwort": "AIRFRIER",
+      "laenge": 8,
+      "hinweis": "Damals Besuchermagnet, heute Alltagsgegenstand in jeder Küche (8)"
     },
     {
-      "nr": 11,
-      "zeile": 7,
-      "spalte": 7,
-      "antwort": "SEKT",
-      "laenge": 4,
-      "hinweis": "Steht vor „oder Selters“ (4)"
-    },
-    {
-      "nr": 12,
-      "zeile": 8,
-      "spalte": 2,
-      "antwort": "SCHALE",
-      "laenge": 6,
-      "hinweis": "Hart, aber mit weichem Kern (6)"
+      "nr": 10,
+      "zeile": 3,
+      "spalte": 14,
+      "antwort": "JUICYBEATS",
+      "laenge": 10,
+      "hinweis": "Welches Wiedersehen war jedes Jahr eine Abschiedstournee? (10)"
     },
     {
       "nr": 13,
+      "zeile": 6,
+      "spalte": 3,
+      "antwort": "APPLETREEGARDEN",
+      "laenge": 15,
+      "hinweis": "Wo hätte Newton statt einer Beule einen Ohrwurm bekommen? (15)"
+    },
+    {
+      "nr": 14,
+      "zeile": 9,
+      "spalte": 5,
+      "antwort": "SNACKBOX",
+      "laenge": 8,
+      "hinweis": "Darf bei keinem Fernsehabend fehlen (8)"
+    },
+    {
+      "nr": 15,
       "zeile": 10,
-      "spalte": 2,
-      "antwort": "KARTOFFEL",
-      "laenge": 9,
-      "hinweis": "Bei dummen Bauern besonders dick (9)"
+      "spalte": 16,
+      "antwort": "UNIQLO",
+      "laenge": 6,
+      "hinweis": "Hier ein Outfit von 7 senkrecht inspiriert zusammenstellen (6)"
+    },
+    {
+      "nr": 16,
+      "zeile": 12,
+      "spalte": 0,
+      "antwort": "HULA",
+      "laenge": 4,
+      "hinweis": "Landessprachlich korrekte Begrüßung in 2 senkrecht (4)"
+    },
+    {
+      "nr": 17,
+      "zeile": 12,
+      "spalte": 5,
+      "antwort": "OLAF",
+      "laenge": 4,
+      "hinweis": "Wer liebt dich am meisten? (4)"
     }
   ],
   "senkrecht": [
     {
-      "nr": 2,
+      "nr": 1,
       "zeile": 0,
-      "spalte": 2,
-      "antwort": "PFANNE",
-      "laenge": 6,
-      "hinweis": "Wer verliert, wird hineingehauen (6)"
+      "spalte": 1,
+      "antwort": "ZEITRAETSEL",
+      "laenge": 11,
+      "hinweis": "Das Original von diesem Abklatsch. Erscheint wöchentlich (11)"
     },
     {
-      "nr": 3,
+      "nr": 2,
       "zeile": 0,
-      "spalte": 6,
-      "antwort": "TOMATE",
-      "laenge": 6,
-      "hinweis": "Auf den Augen ein Sichthindernis (6)"
+      "spalte": 7,
+      "antwort": "TORREDEMBARRA",
+      "laenge": 13,
+      "hinweis": "Wo haben die Reichen und Schönen ihren Stammplatz? (13)"
     },
     {
       "nr": 4,
-      "zeile": 1,
-      "spalte": 8,
-      "antwort": "KIRSCHE",
-      "laenge": 7,
-      "hinweis": "Mit manchen schlecht zu essen (7)"
+      "zeile": 0,
+      "spalte": 20,
+      "antwort": "CODENAMES",
+      "laenge": 9,
+      "hinweis": "Wo kann ein einziges Wort gleich mehrere Personen enttarnen? (9)"
     },
     {
       "nr": 6,
-      "zeile": 2,
-      "spalte": 10,
-      "antwort": "SCHNITZEL",
-      "laenge": 9,
-      "hinweis": "Wird geklopft, doch keiner öffnet (9)"
+      "zeile": 1,
+      "spalte": 11,
+      "antwort": "DUESSELDORF",
+      "laenge": 11,
+      "hinweis": "Wo wird das Alt bald zum Alltag? (11)"
     },
     {
       "nr": 7,
-      "zeile": 3,
-      "spalte": 0,
-      "antwort": "ZITRONE",
-      "laenge": 7,
-      "hinweis": "Mit ihr handelt, wer Pech hat (7)"
+      "zeile": 2,
+      "spalte": 17,
+      "antwort": "MCWINDHUND",
+      "laenge": 10,
+      "hinweis": "Rennbahn oder Rapkarriere? Thirst Trap im Zirkuszelt (10)"
     },
     {
-      "nr": 10,
-      "zeile": 6,
-      "spalte": 5,
-      "antwort": "KRAUT",
-      "laenge": 5,
-      "hinweis": "Gegen manches ist keins gewachsen (5)"
+      "nr": 8,
+      "zeile": 3,
+      "spalte": 3,
+      "antwort": "COSANOSTRA",
+      "laenge": 10,
+      "hinweis": "Wo zahlte sich Verrat aus, nur nicht für die Verräterin? (10)"
     },
     {
       "nr": 11,
-      "zeile": 7,
-      "spalte": 7,
-      "antwort": "SENF",
-      "laenge": 4,
-      "hinweis": "Wird ungefragt dazugegeben (4)"
+      "zeile": 3,
+      "spalte": 23,
+      "antwort": "SWIMMBAD",
+      "laenge": 8,
+      "hinweis": "Wo wird aus einem Kater ein Seepferdchen? (8)"
+    },
+    {
+      "nr": 12,
+      "zeile": 5,
+      "spalte": 14,
+      "antwort": "WROCLAW",
+      "laenge": 7,
+      "hinweis": "27: tanzen unter Apfelbäumen oder …? (7)"
     }
   ],
   "loesungsfelder": [
     {
       "index": 1,
       "buchstabe": "M",
-      "zeile": 2,
-      "spalte": 1
+      "zeile": 6,
+      "spalte": 23
     },
     {
       "index": 2,
       "buchstabe": "A",
-      "zeile": 10,
-      "spalte": 3
+      "zeile": 3,
+      "spalte": 5
     },
     {
       "index": 3,
       "buchstabe": "H",
-      "zeile": 4,
-      "spalte": 10
+      "zeile": 12,
+      "spalte": 0
     },
     {
       "index": 4,
       "buchstabe": "L",
-      "zeile": 8,
-      "spalte": 6
+      "zeile": 10,
+      "spalte": 20
     },
     {
       "index": 5,
       "buchstabe": "Z",
-      "zeile": 8,
-      "spalte": 10
+      "zeile": 0,
+      "spalte": 1
     },
     {
       "index": 6,
       "buchstabe": "E",
-      "zeile": 5,
-      "spalte": 2
+      "zeile": 0,
+      "spalte": 23
     },
     {
       "index": 7,
       "buchstabe": "I",
-      "zeile": 2,
-      "spalte": 8
+      "zeile": 5,
+      "spalte": 17
     },
     {
       "index": 8,
       "buchstabe": "T",
-      "zeile": 0,
-      "spalte": 4
+      "zeile": 7,
+      "spalte": 1
     }
   ],
   "generator": {
-    "seed": 7,
-    "versuche": 2000,
-    "gueltige_raster": 946,
-    "bewertung": 182.0
+    "seed": 1,
+    "versuche": 500,
+    "gueltige_raster": 24,
+    "bewertung": 303.6
   }
 }

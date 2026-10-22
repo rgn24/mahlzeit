@@ -6,12 +6,18 @@
 | `loesungswort` | Wort aus den markierten Feldern (wird klein geschrieben zum Ordner der Lösungsseite) |
 | `github_user` | GitHub-Nutzer |
 | `projekt` | Repo-Name = Adresse der Eingabeseite `<user>.github.io/<projekt>/` (nur Kleinbuchstaben) |
-| `form` | `zeilen`, `spalten`, optional `maske` (Liste von Strings, `#` = gesperrt, `.` = frei) |
+| `form` | `zeilen`, `spalten`, optional `maske` (Liste von Strings, `#` = gesperrt, `.` = frei), `zuschneiden` (leere Ränder entfernen, Standard: an) |
 | `loesungswoerter` | Wörter, die auf jeden Fall ins Raster müssen (`[]` = freie Wahl aus der Wortliste) |
 | `wortliste` | Kandidaten `{ "wort", "hinweis" }` – Wortlänge `(n)` wird automatisch angehängt, Ä/Ö/Ü/ß → AE/OE/UE/SS |
-| `generator` | `seed`, `versuche`, `max_woerter` |
+| `generator` | `seed`, `versuche`, `max_woerter`, `alle_pflicht` (jedes Wort der Liste muss rein), `suche_knoten` / `suche_breite` (Suchtiefe für Pflichtwörter) |
+| `druck` | `hinweis_mm` (Schriftgröße der Fragen), `min_feld_mm` (kleinste erlaubte Feldgröße) |
 | `blatt` | Kopf rechts auf dem Druckblatt (`nummer`, `widmung`) |
 | `seite` | **Texte der Lösungsseite:** `intro`, `wann`, `wo`, `was` |
+
+## Verweise in Fragen
+Kommt eine andere Antwort in einer Frage vor, in geschweifte Klammern setzen:
+`"Landessprachlich korrekte Begrüßung in {Torredembarra}"` → „… in 2 senkrecht“.
+`pruefen` meldet jede Frage, die eine Antwort im Klartext verrät.
 
 ## Befehle
 ```bash
