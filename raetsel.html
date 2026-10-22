@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Um die Ecke gedacht</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#111111; --paper:#FFFFFF; --accent:#E2401C;
+  --cell:11.25mm; --line:0.375mm; --cols:11;
+}
+@page{size:A4;margin:0}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{font-family:'Hanken Grotesk',sans-serif;color:var(--ink);
+  -webkit-print-color-adjust:exact;print-color-adjust:exact;-webkit-font-smoothing:antialiased}
+@media screen{
+  body{background:#F2F2F2;padding:10mm 0}
+  .blatt{margin:0 auto;outline:1px solid #E5E5E5}
+}
+.blatt{width:210mm;height:297mm;background:var(--paper);overflow:hidden;
+  padding:15mm 16.5mm 13.5mm;display:flex;flex-direction:column;gap:7.5mm}
+
+/* Kopf */
+.kopf{display:flex;justify-content:space-between;align-items:flex-end;
+  border-bottom:0.75mm solid var(--ink);padding-bottom:4.5mm}
+.titel{font-size:12.75mm;font-weight:800;letter-spacing:-.03em;line-height:.95}
+.meta{font-size:3.75mm;font-weight:500;text-align:right;line-height:1.5;
+  text-transform:uppercase;letter-spacing:.08em}
+
+/* Raster */
+.raster{display:grid;grid-template-columns:repeat(var(--cols),var(--cell));
+  grid-auto-rows:var(--cell);gap:var(--line);background:var(--ink);
+  border:var(--line) solid var(--ink);width:max-content}
+.f{position:relative;background:var(--paper)}
+.f.b{background:var(--ink)}
+.f .n{position:absolute;top:calc(var(--cell) * .0667);left:calc(var(--cell) * .1);
+  font-size:calc(var(--cell) * .25);font-weight:700}
+.f.s::after{content:"";position:absolute;inset:0;
+  border:calc(var(--cell) * .0667) solid var(--accent)}
+.f .si{position:absolute;right:calc(var(--cell) * .1);bottom:calc(var(--cell) * .0667);
+  font-size:calc(var(--cell) * .25);font-weight:800;color:var(--accent);line-height:1}
+.f .l{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+  font-size:calc(var(--cell) * .5);font-weight:700}
+
+/* Hinweise */
+.hinweise{display:grid;grid-template-columns:1fr 1fr;gap:9mm;font-size:3.9375mm;line-height:1.4}
+.spalte{display:flex;flex-direction:column;gap:2.25mm}
+.spalte h2{margin:0;font-weight:800;text-transform:uppercase;letter-spacing:.1em;font-size:3.5625mm}
+.h{display:flex;gap:2.25mm}
+.h .nr{width:5.25mm;flex:none;font-weight:700}
+
+/* Fuß: Lösung → Adresse */
+.fuss{margin-top:auto;border-top:0.75mm solid var(--ink);padding-top:4.5mm;
+  display:flex;flex-direction:column;gap:3mm}
+.fuss .label{font-size:3.5625mm;font-weight:800;text-transform:uppercase;letter-spacing:.1em}
+.adresse{display:flex;align-items:center;gap:2.25mm;font-size:4.875mm;font-weight:500}
+.slots{display:flex;gap:0.75mm}
+.slot{position:relative;width:9mm;height:9.75mm;border-bottom:0.75mm solid var(--accent);
+  display:flex;align-items:flex-end;justify-content:center;font-weight:700;font-size:5.25mm;
+  padding-bottom:0.75mm}
+.slot .si{position:absolute;top:0;left:0.375mm;font-size:2.625mm;color:var(--accent);
+  font-weight:800;line-height:1.2}
+</style>
+</head>
+<body>
+<main class="blatt">
+  <header class="kopf">
+    <div class="titel">Um die Ecke<br>gedacht.</div>
+    <div class="meta">Nº 01<br>Für dich</div>
+  </header>
+
+  <div class="raster" role="img" aria-label="Kreuzworträtsel 11 mal 11 Felder">
+    <div class="f"><span class="n">1</span></div><div class="f"></div><div class="f"><span class="n">2</span></div><div class="f"></div><div class="f s"><span class="si">8</span></div><div class="f"></div><div class="f"><span class="n">3</span></div><div class="f b"></div><div class="f b"></div><div class="f b"></div><div class="f b"></div><div class="f b"></div><div class="f b"></div><div class="f"></div><div class="f b"></div><div class="f b"></div><div class="f b"></div><div class="f"></div><div class="f b"></div><div class="f"><span class="n">4</span></div><div class="f b"></div><div class="f b"></div><div class="f b"></div><div class="f s"><span class="n">5</span><span class="si">1</span></div><div class="f"></div><div class="f"></div><div class="f"></div><div class="f b"></div><div class="f"></div><div class="f b"></div><div class="f s"><span class="si">7</span></div><div class="f b"></div><div class="f"><span class="n">6</span></div><div class="f"><span class="n">7</span></div><div class="f b"></div><div class="f"></div><div class="f b"></div><div class="f b"></div><div class="f b"></div><div class="f"></div><div class="f b"></div><div class="f"></div><div class="f b"></div><div class="f"></div><div class="f"></div><div class="f b"></div><div class="f"><span class="n">8</span></div><div class="f"></div><div class="f"></div><div class="f"></div><div class="f"></div><div class="f"></div><div class="f"></div><div class="f"></div><div class="f s"><span class="si">3</span></div><div class="f"><span class="n">9</span></div><div class="f"></div><div class="f s"><span class="si">6</span></div><div class="f b"></div><div class="f b"></div><div class="f b"></div><div class="f"></div><div class="f b"></div><div class="f"></div><div class="f b"></div><div class="f"></div><div class="f"></div><div class="f b"></div><div class="f b"></div><div class="f b"></div><div class="f b"></div><div class="f"><span class="n">10</span></div><div class="f b"></div><div class="f b"></div><div class="f"></div><div class="f b"></div><div class="f"></div><div class="f"></div><div class="f b"></div><div class="f b"></div><div class="f b"></div><div class="f b"></div><div class="f"></div><div class="f b"></div><div class="f"><span class="n">11</span></div><div class="f"></div><div class="f"></div><div class="f"></div><div class="f"></div><div class="f b"></div><div class="f"><span class="n">12</span></div><div class="f"></div><div class="f"></div><div class="f"></div><div class="f s"><span class="si">4</span></div><div class="f"></div><div class="f b"></div><div class="f b"></div><div class="f s"><span class="si">5</span></div><div class="f"></div><div class="f b"></div><div class="f b"></div><div class="f b"></div><div class="f b"></div><div class="f"></div><div class="f b"></div><div class="f"></div><div class="f b"></div><div class="f b"></div><div class="f"></div><div class="f b"></div><div class="f b"></div><div class="f"><span class="n">13</span></div><div class="f s"><span class="si">2</span></div><div class="f"></div><div class="f"></div><div class="f"></div><div class="f"></div><div class="f"></div><div class="f"></div><div class="f"></div>
+  </div>
+
+  <section class="hinweise">
+    <div class="spalte">
+      <h2>Waagerecht</h2>
+      <div class="h"><span class="nr">1</span><span>Kommt beim Essen (7)</span></div>
+      <div class="h"><span class="nr">5</span><span>Platzt im Kino vor Spannung (4)</span></div>
+      <div class="h"><span class="nr">8</span><span>Ein Möbel für die Nacht? Eher süß (9)</span></div>
+      <div class="h"><span class="nr">9</span><span>Begleitet das Abwarten (3)</span></div>
+      <div class="h"><span class="nr">11</span><span>Steht vor „oder Selters“ (4)</span></div>
+      <div class="h"><span class="nr">12</span><span>Hart, aber mit weichem Kern (6)</span></div>
+      <div class="h"><span class="nr">13</span><span>Bei dummen Bauern besonders dick (9)</span></div>
+    </div>
+    <div class="spalte">
+      <h2>Senkrecht</h2>
+      <div class="h"><span class="nr">2</span><span>Wer verliert, wird hineingehauen (6)</span></div>
+      <div class="h"><span class="nr">3</span><span>Auf den Augen ein Sichthindernis (6)</span></div>
+      <div class="h"><span class="nr">4</span><span>Mit manchen schlecht zu essen (7)</span></div>
+      <div class="h"><span class="nr">6</span><span>Wird geklopft, doch keiner öffnet (9)</span></div>
+      <div class="h"><span class="nr">7</span><span>Mit ihr handelt, wer Pech hat (7)</span></div>
+      <div class="h"><span class="nr">10</span><span>Gegen manches ist keins gewachsen (5)</span></div>
+      <div class="h"><span class="nr">11</span><span>Wird ungefragt dazugegeben (4)</span></div>
+    </div>
+  </section>
+
+  <footer class="fuss">
+    <div class="label">Lösung → Adresse</div>
+    <div class="adresse"><span>rgn24.github.io/</span><div class="slots"><div class="slot"><span class="si">1</span></div><div class="slot"><span class="si">2</span></div><div class="slot"><span class="si">3</span></div><div class="slot"><span class="si">4</span></div><div class="slot"><span class="si">5</span></div><div class="slot"><span class="si">6</span></div><div class="slot"><span class="si">7</span></div><div class="slot"><span class="si">8</span></div></div></div>
+  </footer>
+</main>
+</body>
+</html>

@@ -1,0 +1,199 @@
+{
+  "version": 1,
+  "loesungswort": "MAHLZEIT",
+  "url_wort": "mahlzeit",
+  "github_user": "rgn24",
+  "url": "https://rgn24.github.io/mahlzeit/",
+  "zeilen": 11,
+  "spalten": 11,
+  "feld_mm": 11.25,
+  "raster": [
+    "APPETIT####",
+    "##F###O#K##",
+    "#MAIS#M#I#S",
+    "Z#N###A#R#C",
+    "I#NACHTISCH",
+    "TEE###E#C#N",
+    "R####K##H#I",
+    "O####R#SEKT",
+    "N#SCHALE##Z",
+    "E####U#N##E",
+    "##KARTOFFEL"
+  ],
+  "legende": {
+    "#": "Blockfeld",
+    "A–Z": "Buchstabe (Ä/Ö/Ü = AE/OE/UE)"
+  },
+  "waagerecht": [
+    {
+      "nr": 1,
+      "zeile": 0,
+      "spalte": 0,
+      "antwort": "APPETIT",
+      "laenge": 7,
+      "hinweis": "Kommt beim Essen (7)"
+    },
+    {
+      "nr": 5,
+      "zeile": 2,
+      "spalte": 1,
+      "antwort": "MAIS",
+      "laenge": 4,
+      "hinweis": "Platzt im Kino vor Spannung (4)"
+    },
+    {
+      "nr": 8,
+      "zeile": 4,
+      "spalte": 2,
+      "antwort": "NACHTISCH",
+      "laenge": 9,
+      "hinweis": "Ein Möbel für die Nacht? Eher süß (9)"
+    },
+    {
+      "nr": 9,
+      "zeile": 5,
+      "spalte": 0,
+      "antwort": "TEE",
+      "laenge": 3,
+      "hinweis": "Begleitet das Abwarten (3)"
+    },
+    {
+      "nr": 11,
+      "zeile": 7,
+      "spalte": 7,
+      "antwort": "SEKT",
+      "laenge": 4,
+      "hinweis": "Steht vor „oder Selters“ (4)"
+    },
+    {
+      "nr": 12,
+      "zeile": 8,
+      "spalte": 2,
+      "antwort": "SCHALE",
+      "laenge": 6,
+      "hinweis": "Hart, aber mit weichem Kern (6)"
+    },
+    {
+      "nr": 13,
+      "zeile": 10,
+      "spalte": 2,
+      "antwort": "KARTOFFEL",
+      "laenge": 9,
+      "hinweis": "Bei dummen Bauern besonders dick (9)"
+    }
+  ],
+  "senkrecht": [
+    {
+      "nr": 2,
+      "zeile": 0,
+      "spalte": 2,
+      "antwort": "PFANNE",
+      "laenge": 6,
+      "hinweis": "Wer verliert, wird hineingehauen (6)"
+    },
+    {
+      "nr": 3,
+      "zeile": 0,
+      "spalte": 6,
+      "antwort": "TOMATE",
+      "laenge": 6,
+      "hinweis": "Auf den Augen ein Sichthindernis (6)"
+    },
+    {
+      "nr": 4,
+      "zeile": 1,
+      "spalte": 8,
+      "antwort": "KIRSCHE",
+      "laenge": 7,
+      "hinweis": "Mit manchen schlecht zu essen (7)"
+    },
+    {
+      "nr": 6,
+      "zeile": 2,
+      "spalte": 10,
+      "antwort": "SCHNITZEL",
+      "laenge": 9,
+      "hinweis": "Wird geklopft, doch keiner öffnet (9)"
+    },
+    {
+      "nr": 7,
+      "zeile": 3,
+      "spalte": 0,
+      "antwort": "ZITRONE",
+      "laenge": 7,
+      "hinweis": "Mit ihr handelt, wer Pech hat (7)"
+    },
+    {
+      "nr": 10,
+      "zeile": 6,
+      "spalte": 5,
+      "antwort": "KRAUT",
+      "laenge": 5,
+      "hinweis": "Gegen manches ist keins gewachsen (5)"
+    },
+    {
+      "nr": 11,
+      "zeile": 7,
+      "spalte": 7,
+      "antwort": "SENF",
+      "laenge": 4,
+      "hinweis": "Wird ungefragt dazugegeben (4)"
+    }
+  ],
+  "loesungsfelder": [
+    {
+      "index": 1,
+      "buchstabe": "M",
+      "zeile": 2,
+      "spalte": 1
+    },
+    {
+      "index": 2,
+      "buchstabe": "A",
+      "zeile": 10,
+      "spalte": 3
+    },
+    {
+      "index": 3,
+      "buchstabe": "H",
+      "zeile": 4,
+      "spalte": 10
+    },
+    {
+      "index": 4,
+      "buchstabe": "L",
+      "zeile": 8,
+      "spalte": 6
+    },
+    {
+      "index": 5,
+      "buchstabe": "Z",
+      "zeile": 8,
+      "spalte": 10
+    },
+    {
+      "index": 6,
+      "buchstabe": "E",
+      "zeile": 5,
+      "spalte": 2
+    },
+    {
+      "index": 7,
+      "buchstabe": "I",
+      "zeile": 2,
+      "spalte": 8
+    },
+    {
+      "index": 8,
+      "buchstabe": "T",
+      "zeile": 0,
+      "spalte": 4
+    }
+  ],
+  "generator": {
+    "seed": 7,
+    "versuche": 2000,
+    "gueltige_raster": 946,
+    "bewertung": 182.0
+  }
+}

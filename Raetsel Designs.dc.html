@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="design_doc_mode" content="canvas">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;700;800&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@300;400;500&family=Schibsted+Grotesk:wght@400;600;800;900&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400;1,6..72,500&family=Instrument+Sans:wght@400;500;600&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<style>body{margin:0;background:#e4e3df;-webkit-font-smoothing:antialiased}a{color:inherit}a:hover{opacity:.7}</style>
+</helmet>
+<section style="display:flex;flex-direction:column;gap:48px;padding:80px;font-family:'Hanken Grotesk',sans-serif">
+<div style="display:flex;flex-direction:column;gap:8px;max-width:900px">
+<div style="font-size:13px;letter-spacing:.12em;text-transform:uppercase;color:#6b6a66">Runde 1 · 5 Richtungen</div>
+<div style="font-size:40px;font-weight:800;color:#141414;letter-spacing:-.02em">Rätselblatt + Lösungsseite</div>
+<div style="font-size:16px;color:#4a4946;line-height:1.5;text-wrap:pretty">Links jeweils das Druckblatt (A4), rechts die github.io-Seite, die nach dem Lösen erscheint. Raster und Hinweise sind Beispiele – das echte Rätsel kommt aus Claude Code. Nutzername und Lösungswort lassen sich in den Tweaks ändern.</div>
+</div>
+<div style="display:flex;flex-wrap:wrap;gap:80px">
+
+<!-- 1a RASTER -->
+<div id="1a" style="display:flex;flex-direction:column;gap:20px">
+<div style="display:flex;align-items:baseline;gap:14px"><span style="background:#141414;color:#fff;font-weight:700;font-size:15px;padding:4px 10px">1a</span><span style="font-size:22px;font-weight:700;color:#141414">Raster</span><span style="font-size:15px;color:#6b6a66">Schwarz/Weiß, ein rotes Signal, strenge Grotesk</span></div>
+<div style="display:flex;gap:32px;align-items:flex-start">
+<div style="width:560px;height:792px;overflow:hidden;box-sizing:border-box;background:#fff;padding:40px 44px 36px;display:flex;flex-direction:column;gap:20px;font-family:'Hanken Grotesk',sans-serif;color:#111;box-shadow:0 1px 3px rgba(0,0,0,.08)">
+<div style="display:flex;justify-content:space-between;align-items:flex-end;border-bottom:2px solid #111;padding-bottom:12px">
+<div style="font-size:34px;font-weight:800;letter-spacing:-.03em;line-height:.95">Um die Ecke<br>gedacht.</div>
+<div style="font-size:10px;font-weight:500;text-align:right;line-height:1.5;text-transform:uppercase;letter-spacing:.08em">Nº 01<br>Für dich</div>
+</div>
+<div style="display:grid;grid-template-columns:repeat(11,30px);gap:1px;background:#111;border:1px solid #111;width:max-content">
+<sc-for list="{{ cells }}" as="c" hint-placeholder-count="121">
+<sc-if value="{{ c.block }}"><div style="width:30px;height:30px;background:#111"></div></sc-if>
+<sc-if value="{{ c.open }}"><div style="position:relative;width:30px;height:30px;background:#fff"><span style="position:absolute;top:2px;left:3px;font-size:7.5px;font-weight:700">{{ c.num }}</span><sc-if value="{{ c.sol }}"><span style="position:absolute;inset:0;box-shadow:inset 0 0 0 2px #e2401c"></span><span style="position:absolute;right:3px;bottom:2px;font-size:7.5px;font-weight:800;color:#e2401c">{{ c.solNum }}</span></sc-if></div></sc-if>
+</sc-for>
+</div>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;font-size:10.5px;line-height:1.4">
+<div style="display:flex;flex-direction:column;gap:6px"><div style="font-weight:800;text-transform:uppercase;letter-spacing:.1em;font-size:9.5px">Waagerecht</div><sc-for list="{{ across }}" as="k" hint-placeholder-count="6"><div style="display:flex;gap:6px"><span style="width:14px;flex:none;font-weight:700">{{ k.n }}</span><span>{{ k.t }}</span></div></sc-for></div>
+<div style="display:flex;flex-direction:column;gap:6px"><div style="font-weight:800;text-transform:uppercase;letter-spacing:.1em;font-size:9.5px">Senkrecht</div><sc-for list="{{ down }}" as="k" hint-placeholder-count="6"><div style="display:flex;gap:6px"><span style="width:14px;flex:none;font-weight:700">{{ k.n }}</span><span>{{ k.t }}</span></div></sc-for></div>
+</div>
+<div style="margin-top:auto;border-top:2px solid #111;padding-top:12px;display:flex;flex-direction:column;gap:8px">
+<div style="font-size:9.5px;font-weight:800;text-transform:uppercase;letter-spacing:.1em">Lösung → Adresse</div>
+<div style="display:flex;align-items:center;gap:6px;font-size:13px;font-weight:500"><span>{{ user }}.github.io/</span><div style="display:flex;gap:2px"><sc-for list="{{ slots }}" as="s" hint-placeholder-count="8"><div style="position:relative;width:24px;height:26px;border-bottom:2px solid #e2401c;display:flex;align-items:flex-end;justify-content:center;font-weight:700;font-size:14px;padding-bottom:2px;box-sizing:border-box"><span style="position:absolute;top:0;left:1px;font-size:7px;color:#e2401c;font-weight:800">{{ s.n }}</span>{{ s.ch }}</div></sc-for></div></div>
+</div>
+</div>
+<div style="width:720px;height:792px;background:#fff;display:flex;flex-direction:column;font-family:'Hanken Grotesk',sans-serif;color:#111;box-shadow:0 1px 3px rgba(0,0,0,.08);overflow:hidden">
+<div style="height:38px;border-bottom:1px solid #e5e5e5;display:flex;align-items:center;justify-content:center;font-size:12px;color:#777">{{ user }}.github.io/{{ wordLower }}</div>
+<div style="flex:1;padding:48px 56px;display:flex;flex-direction:column">
+<div style="display:flex;justify-content:space-between;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.1em"><span>{{ word }}</span><span style="color:#e2401c">● Gelöst</span></div>
+<div style="font-size:104px;font-weight:800;letter-spacing:-.05em;line-height:.9;margin-top:96px">Richtig<br>gedacht<span style="color:#e2401c">.</span></div>
+<div style="font-size:17px;line-height:1.5;max-width:420px;margin-top:28px;color:#333;text-wrap:pretty">Du bist um die Ecke gekommen. Hier steht, wie es weitergeht – Platz für deinen Text.</div>
+<div style="margin-top:auto;display:grid;grid-template-columns:repeat(3,1fr);gap:24px">
+<div style="border-top:2px solid #111;padding-top:12px;display:flex;flex-direction:column;gap:6px"><span style="font-size:11px;font-weight:700;color:#e2401c">01</span><span style="font-size:18px;font-weight:700">Wann</span><span style="font-size:14px;color:#555">Text folgt</span></div>
+<div style="border-top:2px solid #111;padding-top:12px;display:flex;flex-direction:column;gap:6px"><span style="font-size:11px;font-weight:700;color:#e2401c">02</span><span style="font-size:18px;font-weight:700">Wo</span><span style="font-size:14px;color:#555">Text folgt</span></div>
+<div style="border-top:2px solid #111;padding-top:12px;display:flex;flex-direction:column;gap:6px"><span style="font-size:11px;font-weight:700;color:#e2401c">03</span><span style="font-size:18px;font-weight:700">Was</span><span style="font-size:14px;color:#555">Text folgt</span></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+<!-- 1b HAARLINIE -->
+<div id="1b" style="display:flex;flex-direction:column;gap:20px">
+<div style="display:flex;align-items:baseline;gap:14px"><span style="background:#141414;color:#fff;font-weight:700;font-size:15px;padding:4px 10px">1b</span><span style="font-size:22px;font-weight:700;color:#141414">Haarlinie</span><span style="font-size:15px;color:#6b6a66">Feine Linien, Schraffur statt Schwarz, Mono-Typo</span></div>
+<div style="display:flex;gap:32px;align-items:flex-start">
+<div style="width:560px;height:792px;overflow:hidden;box-sizing:border-box;background:#f7f6f2;padding:44px;display:flex;flex-direction:column;gap:24px;font-family:'IBM Plex Sans',sans-serif;color:#2b2b2b;box-shadow:0 1px 3px rgba(0,0,0,.08)">
+<div style="display:grid;grid-template-columns:1fr auto;gap:4px 16px;font-family:'IBM Plex Mono',monospace;font-size:9.5px;text-transform:uppercase;letter-spacing:.08em;color:#7a776f;border-top:.5px solid #9d9a91;padding-top:10px">
+<span>Kreuzworträtsel / um die Ecke gedacht</span><span>01 / 01</span>
+<span style="grid-column:1 / -1;font-family:'IBM Plex Sans',sans-serif;font-weight:300;font-size:30px;text-transform:none;letter-spacing:-.01em;color:#2b2b2b;margin-top:14px">Nicht alles ist, wie es scheint.</span>
+</div>
+<div style="display:grid;grid-template-columns:repeat(11,30px);gap:.5px;background:#9d9a91;border:.5px solid #9d9a91;width:max-content">
+<sc-for list="{{ cells }}" as="c" hint-placeholder-count="121">
+<sc-if value="{{ c.block }}"><div style="width:30px;height:30px;background:repeating-linear-gradient(135deg,#f7f6f2 0 3px,#9d9a91 3px 3.6px)"></div></sc-if>
+<sc-if value="{{ c.open }}"><div style="position:relative;width:30px;height:30px;background:#f7f6f2"><span style="position:absolute;top:2px;left:3px;font-family:'IBM Plex Mono',monospace;font-size:7px;color:#5e5b54">{{ c.num }}</span><sc-if value="{{ c.sol }}"><span style="position:absolute;right:3px;bottom:3px;width:11px;height:11px;border-radius:50%;background:#2f4bbd;color:#fff;font-family:'IBM Plex Mono',monospace;font-size:6.5px;display:flex;align-items:center;justify-content:center">{{ c.solNum }}</span></sc-if></div></sc-if>
+</sc-for>
+</div>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;font-size:10.5px;line-height:1.45">
+<div style="display:flex;flex-direction:column;gap:6px"><div style="font-family:'IBM Plex Mono',monospace;font-size:9px;text-transform:uppercase;letter-spacing:.1em;color:#7a776f;border-bottom:.5px solid #9d9a91;padding-bottom:4px">→ Waagerecht</div><sc-for list="{{ across }}" as="k" hint-placeholder-count="6"><div style="display:flex;gap:8px"><span style="width:14px;flex:none;font-family:'IBM Plex Mono',monospace;color:#2f4bbd">{{ k.n }}</span><span>{{ k.t }}</span></div></sc-for></div>
+<div style="display:flex;flex-direction:column;gap:6px"><div style="font-family:'IBM Plex Mono',monospace;font-size:9px;text-transform:uppercase;letter-spacing:.1em;color:#7a776f;border-bottom:.5px solid #9d9a91;padding-bottom:4px">↓ Senkrecht</div><sc-for list="{{ down }}" as="k" hint-placeholder-count="6"><div style="display:flex;gap:8px"><span style="width:14px;flex:none;font-family:'IBM Plex Mono',monospace;color:#2f4bbd">{{ k.n }}</span><span>{{ k.t }}</span></div></sc-for></div>
+</div>
+<div style="margin-top:auto;display:flex;align-items:center;gap:8px;font-family:'IBM Plex Mono',monospace;font-size:12px;border-top:.5px solid #9d9a91;padding-top:14px">
+<span style="color:#7a776f">https://{{ user }}.github.io/</span>
+<div style="display:flex;gap:.5px;background:#9d9a91;border:.5px solid #9d9a91"><sc-for list="{{ slots }}" as="s" hint-placeholder-count="8"><div style="position:relative;width:24px;height:26px;background:#f7f6f2;display:flex;align-items:center;justify-content:center;font-size:13px;color:#2f4bbd"><span style="position:absolute;top:1px;left:2px;font-size:6.5px;color:#7a776f">{{ s.n }}</span>{{ s.ch }}</div></sc-for></div>
+</div>
+</div>
+<div style="width:720px;height:792px;background:#f7f6f2;display:flex;flex-direction:column;font-family:'IBM Plex Sans',sans-serif;color:#2b2b2b;box-shadow:0 1px 3px rgba(0,0,0,.08);overflow:hidden">
+<div style="height:38px;border-bottom:.5px solid #9d9a91;display:flex;align-items:center;padding:0 20px;font-family:'IBM Plex Mono',monospace;font-size:11px;color:#7a776f">{{ user }}.github.io/<span style="color:#2f4bbd">{{ wordLower }}</span></div>
+<div style="flex:1;display:grid;grid-template-columns:180px 1fr">
+<div style="border-right:.5px solid #9d9a91;padding:40px 20px;display:flex;flex-direction:column;gap:12px;font-family:'IBM Plex Mono',monospace;font-size:10.5px;text-transform:uppercase;letter-spacing:.08em;color:#7a776f"><span style="color:#2f4bbd">● Lösung korrekt</span><span>{{ word }}</span><span style="margin-top:auto">01 Wann</span><span>02 Wo</span><span>03 Was</span></div>
+<div style="padding:40px 48px;display:flex;flex-direction:column">
+<div style="font-weight:300;font-size:64px;line-height:1.02;letter-spacing:-.02em;margin-top:100px">Du hast um<br>die Ecke gedacht.</div>
+<div style="font-size:16px;line-height:1.6;max-width:400px;margin-top:24px;color:#55534d;text-wrap:pretty">Platz für deinen Text. Ein, zwei Sätze, was jetzt kommt.</div>
+<div style="margin-top:auto;display:flex;flex-direction:column">
+<div style="display:grid;grid-template-columns:60px 1fr;padding:14px 0;border-top:.5px solid #9d9a91;font-size:15px"><span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:#2f4bbd">01</span><span>Wann — Text folgt</span></div>
+<div style="display:grid;grid-template-columns:60px 1fr;padding:14px 0;border-top:.5px solid #9d9a91;font-size:15px"><span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:#2f4bbd">02</span><span>Wo — Text folgt</span></div>
+<div style="display:grid;grid-template-columns:60px 1fr;padding:14px 0;border-top:.5px solid #9d9a91;border-bottom:.5px solid #9d9a91;font-size:15px"><span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:#2f4bbd">03</span><span>Was — Text folgt</span></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+<!-- 1c KONTRAST -->
+<div id="1c" style="display:flex;flex-direction:column;gap:20px">
+<div style="display:flex;align-items:baseline;gap:14px"><span style="background:#141414;color:#fff;font-weight:700;font-size:15px;padding:4px 10px">1c</span><span style="font-size:22px;font-weight:700;color:#141414">Kontrast</span><span style="font-size:15px;color:#6b6a66">Schwere Flächen, Gelb als Markierung, plakativ</span></div>
+<div style="display:flex;gap:32px;align-items:flex-start">
+<div style="width:560px;height:792px;overflow:hidden;box-sizing:border-box;background:#fff;display:flex;flex-direction:column;font-family:'Schibsted Grotesk',sans-serif;color:#0d0d0d;box-shadow:0 1px 3px rgba(0,0,0,.08)">
+<div style="background:#0d0d0d;color:#fff;padding:28px 44px 24px;display:flex;justify-content:space-between;align-items:flex-end">
+<div style="font-size:38px;font-weight:900;line-height:.9;letter-spacing:-.03em;text-transform:uppercase">Um die<br>Ecke.</div>
+<div style="width:52px;height:52px;background:#f2c230;color:#0d0d0d;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:18px">01</div>
+</div>
+<div style="padding:28px 44px 40px;display:flex;flex-direction:column;gap:22px;flex:1">
+<div style="display:grid;grid-template-columns:repeat(11,30px);gap:2px;background:#0d0d0d;border:2px solid #0d0d0d;width:max-content">
+<sc-for list="{{ cells }}" as="c" hint-placeholder-count="121">
+<sc-if value="{{ c.block }}"><div style="width:30px;height:30px;background:#0d0d0d"></div></sc-if>
+<sc-if value="{{ c.open }}"><div style="position:relative;width:30px;height:30px;background:#fff"><span style="position:absolute;top:2px;left:3px;font-size:8px;font-weight:800">{{ c.num }}</span><sc-if value="{{ c.sol }}"><span style="position:absolute;inset:0;background:#f2c230"></span><span style="position:absolute;top:2px;left:3px;font-size:8px;font-weight:800">{{ c.num }}</span><span style="position:absolute;right:3px;bottom:2px;font-size:8px;font-weight:900">{{ c.solNum }}</span></sc-if></div></sc-if>
+</sc-for>
+</div>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;font-size:10.5px;line-height:1.4">
+<div style="display:flex;flex-direction:column;gap:6px"><div style="font-weight:900;text-transform:uppercase;font-size:13px">Waagerecht</div><sc-for list="{{ across }}" as="k" hint-placeholder-count="6"><div style="display:flex;gap:6px"><span style="width:16px;flex:none;font-weight:900">{{ k.n }}</span><span>{{ k.t }}</span></div></sc-for></div>
+<div style="display:flex;flex-direction:column;gap:6px"><div style="font-weight:900;text-transform:uppercase;font-size:13px">Senkrecht</div><sc-for list="{{ down }}" as="k" hint-placeholder-count="6"><div style="display:flex;gap:6px"><span style="width:16px;flex:none;font-weight:900">{{ k.n }}</span><span>{{ k.t }}</span></div></sc-for></div>
+</div>
+<div style="margin-top:auto;display:flex;align-items:center;gap:8px;font-size:13px;font-weight:600">
+<span>{{ user }}.github.io/</span>
+<div style="display:flex;gap:2px"><sc-for list="{{ slots }}" as="s" hint-placeholder-count="8"><div style="position:relative;width:26px;height:28px;background:#f2c230;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:900"><span style="position:absolute;top:1px;left:3px;font-size:7px;font-weight:800">{{ s.n }}</span>{{ s.ch }}</div></sc-for></div>
+</div>
+</div>
+</div>
+<div style="width:720px;height:792px;background:#0d0d0d;display:flex;flex-direction:column;font-family:'Schibsted Grotesk',sans-serif;color:#fff;box-shadow:0 1px 3px rgba(0,0,0,.08);overflow:hidden">
+<div style="height:38px;border-bottom:1px solid #2a2a2a;display:flex;align-items:center;justify-content:center;font-size:12px;color:#8a8a8a">{{ user }}.github.io/{{ wordLower }}</div>
+<div style="flex:1;padding:48px 56px;display:flex;flex-direction:column">
+<div style="align-self:flex-start;background:#f2c230;color:#0d0d0d;font-weight:900;font-size:13px;text-transform:uppercase;padding:6px 10px;letter-spacing:.04em">{{ word }} ✓</div>
+<div style="font-size:112px;font-weight:900;text-transform:uppercase;letter-spacing:-.04em;line-height:.86;margin-top:64px">Ge&shy;löst<span style="color:#f2c230">.</span></div>
+<div style="font-size:18px;line-height:1.5;max-width:440px;margin-top:28px;color:#bdbdbd;text-wrap:pretty">Ecke für Ecke bis hierher. Platz für deinen Text – was jetzt passiert.</div>
+<div style="margin-top:auto;display:grid;grid-template-columns:repeat(3,1fr);gap:2px;background:#0d0d0d">
+<div style="background:#fff;color:#0d0d0d;padding:18px;display:flex;flex-direction:column;gap:20px"><span style="font-size:12px;font-weight:900;text-transform:uppercase">Wann</span><span style="font-size:20px;font-weight:800">Text folgt</span></div>
+<div style="background:#fff;color:#0d0d0d;padding:18px;display:flex;flex-direction:column;gap:20px"><span style="font-size:12px;font-weight:900;text-transform:uppercase">Wo</span><span style="font-size:20px;font-weight:800">Text folgt</span></div>
+<div style="background:#f2c230;color:#0d0d0d;padding:18px;display:flex;flex-direction:column;gap:20px"><span style="font-size:12px;font-weight:900;text-transform:uppercase">Was</span><span style="font-size:20px;font-weight:800">Text folgt</span></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+<!-- 1d FEUILLETON -->
+<div id="1d" style="display:flex;flex-direction:column;gap:20px">
+<div style="display:flex;align-items:baseline;gap:14px"><span style="background:#141414;color:#fff;font-weight:700;font-size:15px;padding:4px 10px">1d</span><span style="font-size:22px;font-weight:700;color:#141414">Feuilleton</span><span style="font-size:15px;color:#6b6a66">Serifen, Papierton, klassische Rätselseite – verfeinert</span></div>
+<div style="display:flex;gap:32px;align-items:flex-start">
+<div style="width:560px;height:792px;overflow:hidden;box-sizing:border-box;background:#f4efe6;padding:36px 44px;display:flex;flex-direction:column;align-items:center;gap:16px;font-family:'Newsreader',serif;color:#2a2622;box-shadow:0 1px 3px rgba(0,0,0,.08)">
+<div style="display:flex;flex-direction:column;align-items:center;gap:6px;width:100%;border-bottom:.5px solid #2a2622;padding-bottom:14px">
+<span style="font-size:10px;letter-spacing:.24em;text-transform:uppercase">Das Rätsel</span>
+<span style="font-size:38px;font-style:italic;line-height:1">Um die Ecke gedacht</span>
+<span style="font-size:11px;color:#6d655b">Nr. 1 · Für einen, der gern zweimal hinschaut</span>
+</div>
+<div style="display:grid;grid-template-columns:repeat(11,30px);gap:.75px;background:#2a2622;border:1px solid #2a2622;width:max-content">
+<sc-for list="{{ cells }}" as="c" hint-placeholder-count="121">
+<sc-if value="{{ c.block }}"><div style="width:30px;height:30px;background:#2a2622"></div></sc-if>
+<sc-if value="{{ c.open }}"><div style="position:relative;width:30px;height:30px;background:#fbf8f2"><span style="position:absolute;top:1px;left:3px;font-size:8px">{{ c.num }}</span><sc-if value="{{ c.sol }}"><span style="position:absolute;inset:4px;border:1px solid #b4532a;border-radius:50%"></span><span style="position:absolute;right:2px;bottom:1px;font-size:7.5px;font-style:italic;color:#b4532a">{{ c.solNum }}</span></sc-if></div></sc-if>
+</sc-for>
+</div>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;font-size:11px;line-height:1.3;width:100%">
+<div style="display:flex;flex-direction:column;gap:4px"><div style="font-style:italic;font-size:15px">Waagerecht</div><sc-for list="{{ across }}" as="k" hint-placeholder-count="6"><div style="display:flex;gap:6px"><span style="width:14px;flex:none;font-weight:500">{{ k.n }}</span><span>{{ k.t }}</span></div></sc-for></div>
+<div style="display:flex;flex-direction:column;gap:4px"><div style="font-style:italic;font-size:15px">Senkrecht</div><sc-for list="{{ down }}" as="k" hint-placeholder-count="6"><div style="display:flex;gap:6px"><span style="width:14px;flex:none;font-weight:500">{{ k.n }}</span><span>{{ k.t }}</span></div></sc-for></div>
+</div>
+<div style="margin-top:auto;display:flex;flex-direction:column;align-items:center;gap:18px;width:100%;border-top:.5px solid #2a2622;padding-top:12px">
+<span style="font-size:12px;font-style:italic;color:#6d655b">Die Kreise ergeben die Adresse</span>
+<div style="display:flex;align-items:center;gap:6px;font-size:14px"><span>{{ user }}.github.io/</span><div style="display:flex;gap:4px"><sc-for list="{{ slots }}" as="s" hint-placeholder-count="8"><div style="position:relative;width:24px;height:24px;border:1px solid #b4532a;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px"><span style="position:absolute;top:-11px;left:50%;transform:translateX(-50%);font-size:8px;font-style:italic;color:#b4532a">{{ s.n }}</span>{{ s.ch }}</div></sc-for></div></div>
+</div>
+</div>
+<div style="width:720px;height:792px;background:#f4efe6;display:flex;flex-direction:column;font-family:'Newsreader',serif;color:#2a2622;box-shadow:0 1px 3px rgba(0,0,0,.08);overflow:hidden">
+<div style="height:38px;border-bottom:.5px solid #cfc6b8;display:flex;align-items:center;justify-content:center;font-size:13px;color:#8a8073">{{ user }}.github.io/{{ wordLower }}</div>
+<div style="flex:1;padding:56px 96px;display:flex;flex-direction:column;align-items:center;text-align:center">
+<span style="font-size:11px;letter-spacing:.24em;text-transform:uppercase">Auflösung · {{ word }}</span>
+<div style="font-size:84px;font-style:italic;line-height:1;margin-top:96px;letter-spacing:-.01em">Richtig<br>gedacht.</div>
+<div style="width:40px;height:1px;background:#b4532a;margin-top:32px"></div>
+<div style="font-size:19px;line-height:1.55;max-width:420px;margin-top:28px;color:#4d463e;text-wrap:pretty">Wer so um die Ecke denkt, verdient eine Fortsetzung. Platz für deinen Text.</div>
+<div style="margin-top:auto;display:grid;grid-template-columns:repeat(3,1fr);width:100%;border-top:.5px solid #2a2622;border-bottom:.5px solid #2a2622">
+<div style="padding:16px 8px;display:flex;flex-direction:column;gap:4px"><span style="font-style:italic;color:#b4532a;font-size:15px">Wann</span><span style="font-size:16px">Text folgt</span></div>
+<div style="padding:16px 8px;display:flex;flex-direction:column;gap:4px;border-left:.5px solid #2a2622;border-right:.5px solid #2a2622"><span style="font-style:italic;color:#b4532a;font-size:15px">Wo</span><span style="font-size:16px">Text folgt</span></div>
+<div style="padding:16px 8px;display:flex;flex-direction:column;gap:4px"><span style="font-style:italic;color:#b4532a;font-size:15px">Was</span><span style="font-size:16px">Text folgt</span></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+<!-- 1e MODUL -->
+<div id="1e" style="display:flex;flex-direction:column;gap:20px">
+<div style="display:flex;align-items:baseline;gap:14px"><span style="background:#141414;color:#fff;font-weight:700;font-size:15px;padding:4px 10px">1e</span><span style="font-size:22px;font-weight:700;color:#141414">Modul</span><span style="font-size:15px;color:#6b6a66">Luftig, graue Felder statt Schwarz, Serif-Akzent, Grün</span></div>
+<div style="display:flex;gap:32px;align-items:flex-start">
+<div style="width:560px;height:792px;overflow:hidden;box-sizing:border-box;background:#fff;padding:38px 44px;display:flex;flex-direction:column;gap:20px;font-family:'Instrument Sans',sans-serif;color:#1c1c1a;box-shadow:0 1px 3px rgba(0,0,0,.08)">
+<div style="display:flex;justify-content:space-between;align-items:flex-start">
+<div style="display:flex;flex-direction:column;gap:2px"><span style="font-family:'Instrument Serif',serif;font-size:44px;line-height:1;letter-spacing:-.01em">Um die Ecke <span style="font-style:italic;color:#2f6b4f">gedacht</span></span><span style="font-size:11px;color:#77776f">Kreuzworträtsel · Ausgabe 01</span></div>
+<span style="font-size:11px;border:1px solid #d8d8d4;padding:4px 8px;border-radius:999px;color:#2f6b4f">11 × 11</span>
+</div>
+<div style="display:grid;grid-template-columns:repeat(11,30px);gap:1px;background:#d8d8d4;border:1px solid #d8d8d4;width:max-content">
+<sc-for list="{{ cells }}" as="c" hint-placeholder-count="121">
+<sc-if value="{{ c.block }}"><div style="width:30px;height:30px;background:#e9e9e5"></div></sc-if>
+<sc-if value="{{ c.open }}"><div style="position:relative;width:30px;height:30px;background:#fff"><span style="position:absolute;top:2px;left:3px;font-size:7.5px;font-weight:500;color:#55554f">{{ c.num }}</span><sc-if value="{{ c.sol }}"><span style="position:absolute;inset:0;border:1.5px solid #2f6b4f"></span><span style="position:absolute;right:0;bottom:0;background:#2f6b4f;color:#fff;font-size:7px;font-weight:600;padding:1px 3px">{{ c.solNum }}</span></sc-if></div></sc-if>
+</sc-for>
+</div>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;font-size:10.5px;line-height:1.45">
+<div style="display:flex;flex-direction:column;gap:6px"><div style="font-family:'Instrument Serif',serif;font-size:18px;font-style:italic;color:#2f6b4f">Waagerecht</div><sc-for list="{{ across }}" as="k" hint-placeholder-count="6"><div style="display:flex;gap:8px"><span style="width:14px;flex:none;font-weight:600">{{ k.n }}</span><span style="color:#3b3b37">{{ k.t }}</span></div></sc-for></div>
+<div style="display:flex;flex-direction:column;gap:6px"><div style="font-family:'Instrument Serif',serif;font-size:18px;font-style:italic;color:#2f6b4f">Senkrecht</div><sc-for list="{{ down }}" as="k" hint-placeholder-count="6"><div style="display:flex;gap:8px"><span style="width:14px;flex:none;font-weight:600">{{ k.n }}</span><span style="color:#3b3b37">{{ k.t }}</span></div></sc-for></div>
+</div>
+<div style="margin-top:auto;background:#f3f5f2;padding:14px 16px;display:flex;align-items:center;justify-content:space-between;gap:8px">
+<span style="font-size:12px;color:#55554f">{{ user }}.github.io/</span>
+<div style="display:flex;gap:3px"><sc-for list="{{ slots }}" as="s" hint-placeholder-count="8"><div style="position:relative;width:26px;height:28px;background:#fff;border:1.5px solid #2f6b4f;display:flex;align-items:center;justify-content:center;font-family:'Instrument Serif',serif;font-size:18px"><span style="position:absolute;top:1px;left:2px;font-family:'Instrument Sans',sans-serif;font-size:6.5px;color:#2f6b4f;font-weight:600">{{ s.n }}</span>{{ s.ch }}</div></sc-for></div>
+</div>
+</div>
+<div style="width:720px;height:792px;background:#fff;display:flex;flex-direction:column;font-family:'Instrument Sans',sans-serif;color:#1c1c1a;box-shadow:0 1px 3px rgba(0,0,0,.08);overflow:hidden">
+<div style="height:38px;border-bottom:1px solid #ececea;display:flex;align-items:center;justify-content:center;font-size:12px;color:#8a8a83">{{ user }}.github.io/{{ wordLower }}</div>
+<div style="flex:1;padding:40px;display:grid;grid-template-columns:1.3fr 1fr;grid-template-rows:1fr auto;gap:1px;background:#ececea">
+<div style="background:#fff;padding:32px;display:flex;flex-direction:column;grid-row:1 / 3">
+<span style="font-size:12px;color:#2f6b4f;font-weight:600">✓ {{ word }}</span>
+<div style="font-family:'Instrument Serif',serif;font-size:80px;line-height:.95;margin-top:auto;letter-spacing:-.015em">Gut <span style="font-style:italic;color:#2f6b4f">um die Ecke</span> gedacht.</div>
+<div style="font-size:15px;line-height:1.6;color:#55554f;margin-top:20px;max-width:340px;text-wrap:pretty">Platz für deinen Text – was als Nächstes kommt.</div>
+</div>
+<div style="background:#fff;padding:24px;display:flex;flex-direction:column;justify-content:space-between;gap:24px"><span style="font-family:'Instrument Serif',serif;font-style:italic;font-size:22px;color:#2f6b4f">Wann</span><span style="font-size:17px;font-weight:500">Text folgt</span></div>
+<div style="background:#fff;display:grid;grid-template-rows:1fr 1fr;gap:1px;background:#ececea">
+<div style="background:#fff;padding:24px;display:flex;flex-direction:column;gap:14px"><span style="font-family:'Instrument Serif',serif;font-style:italic;font-size:22px;color:#2f6b4f">Wo</span><span style="font-size:17px;font-weight:500">Text folgt</span></div>
+<div style="background:#2f6b4f;color:#fff;padding:24px;display:flex;flex-direction:column;gap:14px"><span style="font-family:'Instrument Serif',serif;font-style:italic;font-size:22px">Was</span><span style="font-size:17px;font-weight:500">Text folgt</span></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+</div>
+</section>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;githubUser&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;deinname&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;solutionWord&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;ANKUNFT&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;showLetters&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;}}">
+class Component extends DCLogic {
+  renderVals() {
+    const user = this.props.githubUser ?? 'deinname';
+    const word = (this.props.solutionWord ?? 'ANKUNFT').toUpperCase().slice(0, 8);
+    const show = this.props.showLetters ?? false;
+    const P = ["......#....",".#.#..#.#.#","....#......",".#.#.#.##..","......#....","##.#...#.##","....#......","..##.#.#.#.","......#....","#.#.#..#.#.","....#......"];
+    const solPos = [[0,2],[2,7],[4,0],[4,9],[6,1],[6,5],[8,3],[10,8]].slice(0, word.length);
+    const open = (r, c) => r >= 0 && r < 11 && c >= 0 && c < 11 && P[r][c] === '.';
+    const cells = [], acrossN = [], downN = [];
+    let n = 0;
+    for (let r = 0; r < 11; r++) for (let c = 0; c < 11; c++) {
+      if (!open(r, c)) { cells.push({ block: true, open: false }); continue; }
+      const a = !open(r, c - 1) && open(r, c + 1), d = !open(r - 1, c) && open(r + 1, c);
+      let num = '';
+      if (a || d) { n++; num = n; if (a) acrossN.push(n); if (d) downN.push(n); }
+      const si = solPos.findIndex(([y, x]) => y === r && x === c);
+      cells.push({ block: false, open: true, num, sol: si >= 0, solNum: si >= 0 ? si + 1 : '' });
+    }
+    const A = ['Hat Zähne, beißt aber nie (4)','Fällt ständig, tut sich aber nie weh (5)','Ein Strich durch die Rechnung (5)','Hält Wasser, obwohl es voller Löcher ist (7)','Hat ein Auge, sieht aber nichts (5)','Wird größer, je mehr man wegnimmt (4)'];
+    const D = ['Läuft und läuft, ganz ohne Beine (3)','Hat einen Hals, aber keinen Kopf (7)','Bringt Licht ins Dunkel, wenn man ihn drückt (8)','Hat Blätter, aber keinen Stamm (4)','Steht im Wald auf nur einem Bein (4)','Hinterlässt man, ohne sie je mitzunehmen (6)'];
+    return {
+      user, word, wordLower: word.toLowerCase(), cells,
+      across: A.map((t, i) => ({ n: acrossN[i * 2] ?? '', t })),
+      down: D.map((t, i) => ({ n: downN[i * 2] ?? '', t })),
+      slots: word.split('').map((ch, i) => ({ n: i + 1, ch: show ? ch : '' }))
+    };
+  }
+}
+</script>
+</body>
+</html>
