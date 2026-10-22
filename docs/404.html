@@ -5,6 +5,30 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
 <title>Noch nicht ganz.</title>
+<script>
+/* Richtiges Wort in anderer Schreibweise (Großbuchstaben, Ä statt AE …)
+   → zur Lösungsseite weiterleiten. Verglichen wird nur der SHA-256-Hash. */
+(function () {
+  var SOLL = '5bfa2a389b0da33f1b2c608db394f35566ac02213a1deda37aaeba6ab47b9a54';
+  var seg = location.pathname.split('/').filter(Boolean)[0];
+  if (!seg || !window.crypto || !crypto.subtle) return;
+  var wort;
+  try { wort = decodeURIComponent(seg); } catch (e) { return; }
+  wort = wort.trim().toLowerCase()
+    .replace(/ä/g, 'ae').replace(/ö/g, 'oe').replace(/ü/g, 'ue').replace(/ß/g, 'ss')
+    .replace(/[^a-z]/g, '');
+  if (!wort) return;
+  var html = document.documentElement;
+  html.style.visibility = 'hidden';
+  crypto.subtle.digest('SHA-256', new TextEncoder().encode(wort)).then(function (buf) {
+    var ist = Array.prototype.map.call(new Uint8Array(buf), function (b) {
+      return ('0' + b.toString(16)).slice(-2);
+    }).join('');
+    if (ist === SOLL && location.pathname !== '/' + wort + '/') location.replace('/' + wort + '/');
+    else html.style.visibility = '';
+  }, function () { html.style.visibility = ''; });
+})();
+</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;700;800&display=swap" rel="stylesheet">

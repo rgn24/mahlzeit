@@ -16,6 +16,7 @@ Befehle:
 Nur Python-Standardbibliothek. Ausgabe ist HTML/CSS in mm – vektoriell, beliebig skalierbar.
 """
 import argparse
+import hashlib
 import html
 import json
 import random
@@ -852,6 +853,8 @@ document.querySelectorAll('[data-text]').forEach(function (el) {{
 
 def fehlerseite_html(p):
     leer = '<span class="luecke"></span>' * len(p['loesungswort'])
+    # Nur der SHA-256 des Lösungsworts steht im (öffentlichen) Quelltext.
+    soll = hashlib.sha256(p['url_wort'].encode('utf-8')).hexdigest()
     return f"""<!DOCTYPE html>
 <html lang="de">
 <head>
@@ -859,6 +862,30 @@ def fehlerseite_html(p):
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
 <title>Noch nicht ganz.</title>
+<script>
+/* Richtiges Wort in anderer Schreibweise (Großbuchstaben, Ä statt AE …)
+   → zur Lösungsseite weiterleiten. Verglichen wird nur der SHA-256-Hash. */
+(function () {{
+  var SOLL = '{soll}';
+  var seg = location.pathname.split('/').filter(Boolean)[0];
+  if (!seg || !window.crypto || !crypto.subtle) return;
+  var wort;
+  try {{ wort = decodeURIComponent(seg); }} catch (e) {{ return; }}
+  wort = wort.trim().toLowerCase()
+    .replace(/ä/g, 'ae').replace(/ö/g, 'oe').replace(/ü/g, 'ue').replace(/ß/g, 'ss')
+    .replace(/[^a-z]/g, '');
+  if (!wort) return;
+  var html = document.documentElement;
+  html.style.visibility = 'hidden';
+  crypto.subtle.digest('SHA-256', new TextEncoder().encode(wort)).then(function (buf) {{
+    var ist = Array.prototype.map.call(new Uint8Array(buf), function (b) {{
+      return ('0' + b.toString(16)).slice(-2);
+    }}).join('');
+    if (ist === SOLL && location.pathname !== '/' + wort + '/') location.replace('/' + wort + '/');
+    else html.style.visibility = '';
+  }}, function () {{ html.style.visibility = ''; }});
+}})();
+</script>
 {FONT_LINK}
 <style>{SEITE_CSS}
 .adresse{{margin-top:auto;padding-top:64px}}
