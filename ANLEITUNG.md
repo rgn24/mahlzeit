@@ -3,8 +3,9 @@
 ## Eingabe: `raetsel.config.json`
 | Feld | Bedeutung |
 |---|---|
-| `loesungswort` | Wort aus den markierten Feldern (wird auch zur URL, klein geschrieben) |
-| `github_user` | GitHub-Nutzer → `<user>.github.io/<loesungswort>/` |
+| `loesungswort` | Wort aus den markierten Feldern (wird klein geschrieben zum Ordner der Lösungsseite) |
+| `github_user` | GitHub-Nutzer |
+| `projekt` | Repo-Name = Adresse der Eingabeseite `<user>.github.io/<projekt>/` (nur Kleinbuchstaben) |
 | `form` | `zeilen`, `spalten`, optional `maske` (Liste von Strings, `#` = gesperrt, `.` = frei) |
 | `loesungswoerter` | Wörter, die auf jeden Fall ins Raster müssen (`[]` = freie Wahl aus der Wortliste) |
 | `wortliste` | Kandidaten `{ "wort", "hinweis" }` – Wortlänge `(n)` wird automatisch angehängt, Ä/Ö/Ü/ß → AE/OE/UE/SS |
@@ -28,12 +29,14 @@ Lässt sich das Lösungswort nicht auf eigene Felder verteilen (Buchstabe fehlt 
 - `puzzle.json` – Raster (`#` = Blockfeld), Einträge mit Nummer/Position/Antwort/Hinweis, Lösungsfelder 1…n
 - `raetsel.html` – Druckblatt A4 (HTML/CSS in mm, vektoriell) – im Browser drucken, Ränder „Keine“, Hintergrundgrafiken an
 - `raetsel-loesung.html` – dasselbe mit eingetragenen Buchstaben
-- `docs/` – Lösungsseite (`index.html`, `404.html`), wird von GitHub Pages veröffentlicht
-- `rgn24.github.io/` – eigenes Git-Repo, enthält nur die `404.html` für falsche Lösungen
+- `docs/` – wird von GitHub Pages veröffentlicht:
+  - `index.html` – Eingabeseite mit 8 Kästchen (richtig → Lösungsseite, falsch → „Noch nicht ganz“)
+  - `<loesungswort>/index.html` – Lösungsseite (Wann / Wo / Was)
+  - `404.html` – falsche Adressen unter dem Projekt; leitet das richtige Wort in jeder Schreibweise weiter
 
 ## Texte Wann / Wo / Was
 Entweder in `raetsel.config.json` → `seite` eintragen und `rendern`, oder direkt oben in
-`docs/index.html` im Block `const TEXTE = { … }` ändern (Zeilenumbruch: `\n`).
+`docs/mahlzeit/index.html` im Block `const TEXTE = { … }` ändern (Zeilenumbruch: `\n`).
 Achtung: `rendern` überschreibt direkte Änderungen in der HTML-Datei. Danach veröffentlichen:
 ```bash
 git commit -am "Texte" && git push
@@ -41,5 +44,6 @@ git commit -am "Texte" && git push
 Das Repo ist öffentlich – die Texte sind dort für jeden lesbar.
 
 ## GitHub Pages
-- Repo `rgn24/mahlzeit` (dieses Projekt) → Pages aus `main` / `docs` → **https://rgn24.github.io/mahlzeit/**
-- Repo `rgn24/rgn24.github.io` → nur `404.html` → jede falsche Adresse unter rgn24.github.io zeigt „Noch nicht ganz“.
+Repo `rgn24/romanhatgeburtstag` (dieses Projekt) → Pages aus `main` / `docs`:
+- **https://rgn24.github.io/romanhatgeburtstag/** – hier wird das Lösungswort eingetippt (steht so auf dem Blatt)
+- Eingabe- und 404-Seite enthalten nur den SHA-256-Hash des Worts, nicht das Wort selbst.

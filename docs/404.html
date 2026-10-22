@@ -6,25 +6,34 @@
 <meta name="robots" content="noindex, nofollow">
 <title>Noch nicht ganz.</title>
 <script>
-/* Richtiges Wort in anderer Schreibweise (Großbuchstaben, Ä statt AE …)
-   → zur Lösungsseite weiterleiten. Verglichen wird nur der SHA-256-Hash. */
-(function () {
-  var SOLL = '5bfa2a389b0da33f1b2c608db394f35566ac02213a1deda37aaeba6ab47b9a54';
-  var seg = location.pathname.split('/').filter(Boolean)[0];
-  if (!seg || !window.crypto || !crypto.subtle) return;
-  var wort;
-  try { wort = decodeURIComponent(seg); } catch (e) { return; }
-  wort = wort.trim().toLowerCase()
+
+function normalisiere(s) {
+  return String(s).trim().toLowerCase()
     .replace(/ä/g, 'ae').replace(/ö/g, 'oe').replace(/ü/g, 'ue').replace(/ß/g, 'ss')
     .replace(/[^a-z]/g, '');
+}
+function sha256(s) {
+  return crypto.subtle.digest('SHA-256', new TextEncoder().encode(s)).then(function (buf) {
+    return Array.prototype.map.call(new Uint8Array(buf), function (b) {
+      return ('0' + b.toString(16)).slice(-2);
+    }).join('');
+  });
+}
+
+/* Lösungswort direkt an die Adresse gehängt, in anderer Schreibweise (Großbuchstaben,
+   Ä statt AE …) → zur Lösungsseite. Verglichen wird nur der SHA-256-Hash. */
+(function () {
+  var SOLL = '5bfa2a389b0da33f1b2c608db394f35566ac02213a1deda37aaeba6ab47b9a54', BASIS = '/romanhatgeburtstag/';
+  var pfad = location.pathname;
+  if (pfad.toLowerCase().indexOf(BASIS) !== 0 || !window.crypto || !crypto.subtle) return;
+  var seg = pfad.slice(BASIS.length).split('/').filter(Boolean)[0];
+  var wort;
+  try { wort = normalisiere(decodeURIComponent(seg || '')); } catch (e) { return; }
   if (!wort) return;
   var html = document.documentElement;
   html.style.visibility = 'hidden';
-  crypto.subtle.digest('SHA-256', new TextEncoder().encode(wort)).then(function (buf) {
-    var ist = Array.prototype.map.call(new Uint8Array(buf), function (b) {
-      return ('0' + b.toString(16)).slice(-2);
-    }).join('');
-    if (ist === SOLL && location.pathname !== '/' + wort + '/') location.replace('/' + wort + '/');
+  sha256(wort).then(function (ist) {
+    if (ist === SOLL && pfad !== BASIS + wort + '/') location.replace(BASIS + wort + '/');
     else html.style.visibility = '';
   }, function () { html.style.visibility = ''; });
 })();
@@ -58,13 +67,28 @@ h1{font-size:104px;font-weight:800;letter-spacing:-.05em;line-height:.9;margin:9
   .infos{grid-template-columns:1fr;gap:20px;padding-top:56px}
 }
 
-.adresse{margin-top:auto;padding-top:64px}
-.adresse .label{border-top:2px solid var(--ink);padding-top:12px;font-size:11px;font-weight:800;
-  text-transform:uppercase;letter-spacing:.1em}
-.zeile{display:flex;align-items:center;flex-wrap:wrap;gap:6px;margin-top:10px;font-size:18px;font-weight:500}
-.luecken{display:flex;gap:3px}
-.luecke{width:22px;height:26px;border-bottom:2px solid var(--accent)}
-@media (max-width:639px){.luecke{width:16px;height:22px}}
+.eingabe{margin-top:auto;padding-top:64px}
+.eingabe .rahmen{border-top:2px solid var(--ink);padding-top:12px;display:flex;flex-direction:column;gap:14px}
+.label{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.1em}
+.zeile{display:flex;align-items:flex-end;flex-wrap:wrap;gap:16px 24px}
+.kaestchen{display:flex;gap:6px}
+.k{position:relative;display:block;width:48px;height:60px;border-bottom:2px solid var(--accent)}
+.k:focus-within{border-bottom-color:var(--ink)}
+.k .si{position:absolute;top:2px;left:2px;font-size:10px;font-weight:800;color:var(--accent);pointer-events:none}
+.k input{box-sizing:border-box;width:100%;height:100%;margin:0;padding:14px 0 0;border:0;border-radius:0;
+  background:transparent;outline:none;text-align:center;text-transform:uppercase;
+  font:700 32px/1 'Hanken Grotesk',sans-serif;color:var(--ink);caret-color:var(--accent)}
+.knopf{display:inline-flex;align-items:center;height:48px;padding:0 22px;border:0;border-radius:0;
+  background:var(--ink);color:var(--paper);font:700 12px 'Hanken Grotesk',sans-serif;
+  text-transform:uppercase;letter-spacing:.1em;text-decoration:none;cursor:pointer}
+.knopf:hover{opacity:.85}
+.meldung{margin:0;min-height:1.5em;font-size:15px;line-height:1.5;color:var(--text)}
+@media (max-width:639px){
+  .kaestchen{display:grid;grid-template-columns:repeat(8,1fr);gap:4px;width:100%}
+  .k{width:auto;height:52px}
+  .k input{font-size:24px;padding-top:12px}
+  .knopf{width:100%;justify-content:center}
+}
 </style>
 </head>
 <body>
@@ -72,9 +96,11 @@ h1{font-size:104px;font-weight:800;letter-spacing:-.05em;line-height:.9;margin:9
   <div class="kopf"><span>404</span><span class="status">● Noch nicht</span></div>
   <h1>Noch nicht<br>ganz<span class="punkt">.</span></h1>
   <p class="intro">Noch nicht ganz – nochmal um die Ecke denken.</p>
-  <section class="adresse">
-    <div class="label">Lösung → Adresse</div>
-    <div class="zeile"><span>rgn24.github.io/</span><span class="luecken"><span class="luecke"></span><span class="luecke"></span><span class="luecke"></span><span class="luecke"></span><span class="luecke"></span><span class="luecke"></span><span class="luecke"></span><span class="luecke"></span></span></div>
+  <section class="eingabe">
+    <div class="rahmen">
+      <div class="label">Lösungswort eingeben</div>
+      <div class="zeile"><a class="knopf" href="/romanhatgeburtstag/">Zur Eingabe →</a></div>
+    </div>
   </section>
 </main>
 </body>

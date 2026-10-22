@@ -4,22 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
-<title>Richtig gedacht.</title>
-<script>
-/* ============================================================
-   TEXTE DER LÖSUNGSSEITE – hier einsetzen.
-   intro = Einleitung unter der Headline
-   wann / wo / was = die drei Infoblöcke 01 / 02 / 03
-   Zeilenumbrüche mit \n. (Alternativ in raetsel.config.json →
-   "seite" pflegen und `python3 tools/kreuzwort.py rendern`.)
-   ============================================================ */
-const TEXTE = {
-  "intro": "Du bist um die Ecke gekommen. Hier steht, wie es weitergeht – Platz für deinen Text.",
-  "wann": "Text folgt",
-  "wo": "Text folgt",
-  "was": "Text folgt"
-};
-</script>
+<title>Um die Ecke gedacht.</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;700;800&display=swap" rel="stylesheet">
@@ -48,24 +33,133 @@ h1{font-size:104px;font-weight:800;letter-spacing:-.05em;line-height:.9;margin:9
   .intro{font-size:16px}
   .infos{grid-template-columns:1fr;gap:20px;padding-top:56px}
 }
+
+.eingabe{margin-top:auto;padding-top:64px}
+.eingabe .rahmen{border-top:2px solid var(--ink);padding-top:12px;display:flex;flex-direction:column;gap:14px}
+.label{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.1em}
+.zeile{display:flex;align-items:flex-end;flex-wrap:wrap;gap:16px 24px}
+.kaestchen{display:flex;gap:6px}
+.k{position:relative;display:block;width:48px;height:60px;border-bottom:2px solid var(--accent)}
+.k:focus-within{border-bottom-color:var(--ink)}
+.k .si{position:absolute;top:2px;left:2px;font-size:10px;font-weight:800;color:var(--accent);pointer-events:none}
+.k input{box-sizing:border-box;width:100%;height:100%;margin:0;padding:14px 0 0;border:0;border-radius:0;
+  background:transparent;outline:none;text-align:center;text-transform:uppercase;
+  font:700 32px/1 'Hanken Grotesk',sans-serif;color:var(--ink);caret-color:var(--accent)}
+.knopf{display:inline-flex;align-items:center;height:48px;padding:0 22px;border:0;border-radius:0;
+  background:var(--ink);color:var(--paper);font:700 12px 'Hanken Grotesk',sans-serif;
+  text-transform:uppercase;letter-spacing:.1em;text-decoration:none;cursor:pointer}
+.knopf:hover{opacity:.85}
+.meldung{margin:0;min-height:1.5em;font-size:15px;line-height:1.5;color:var(--text)}
+@media (max-width:639px){
+  .kaestchen{display:grid;grid-template-columns:repeat(8,1fr);gap:4px;width:100%}
+  .k{width:auto;height:52px}
+  .k input{font-size:24px;padding-top:12px}
+  .knopf{width:100%;justify-content:center}
+}
 </style>
 </head>
 <body>
 <main class="seite">
-  <div class="kopf"><span>MAHLZEIT</span><span class="status">● Gelöst</span></div>
-  <h1>Richtig<br>gedacht<span class="punkt">.</span></h1>
-  <p class="intro" data-text="intro">Du bist um die Ecke gekommen. Hier steht, wie es weitergeht – Platz für deinen Text.</p>
-  <section class="infos">
-    <div class="info"><span class="nr">01</span><h2>Wann</h2><p data-text="wann">Text folgt</p></div>
-    <div class="info"><span class="nr">02</span><h2>Wo</h2><p data-text="wo">Text folgt</p></div>
-    <div class="info"><span class="nr">03</span><h2>Was</h2><p data-text="was">Text folgt</p></div>
-  </section>
+  <div class="kopf"><span>Nº 01 · Für dich</span><span class="status" id="status" aria-live="polite"></span></div>
+  <h1>Um die Ecke<br>gedacht<span class="punkt">.</span></h1>
+  <p class="intro">Trag das Lösungswort aus dem Rätsel ein – Buchstabe für Buchstabe, in der Reihenfolge der roten Zahlen.</p>
+  <form class="eingabe" id="form" autocomplete="off" novalidate>
+    <div class="rahmen">
+      <div class="label">Lösungswort</div>
+      <div class="zeile">
+        <div class="kaestchen">
+        <label class="k"><span class="si">1</span><input type="text" inputmode="text" autocomplete="off" autocorrect="off" autocapitalize="characters" spellcheck="false" aria-label="Buchstabe 1 von 8"></label>
+        <label class="k"><span class="si">2</span><input type="text" inputmode="text" autocomplete="off" autocorrect="off" autocapitalize="characters" spellcheck="false" aria-label="Buchstabe 2 von 8"></label>
+        <label class="k"><span class="si">3</span><input type="text" inputmode="text" autocomplete="off" autocorrect="off" autocapitalize="characters" spellcheck="false" aria-label="Buchstabe 3 von 8"></label>
+        <label class="k"><span class="si">4</span><input type="text" inputmode="text" autocomplete="off" autocorrect="off" autocapitalize="characters" spellcheck="false" aria-label="Buchstabe 4 von 8"></label>
+        <label class="k"><span class="si">5</span><input type="text" inputmode="text" autocomplete="off" autocorrect="off" autocapitalize="characters" spellcheck="false" aria-label="Buchstabe 5 von 8"></label>
+        <label class="k"><span class="si">6</span><input type="text" inputmode="text" autocomplete="off" autocorrect="off" autocapitalize="characters" spellcheck="false" aria-label="Buchstabe 6 von 8"></label>
+        <label class="k"><span class="si">7</span><input type="text" inputmode="text" autocomplete="off" autocorrect="off" autocapitalize="characters" spellcheck="false" aria-label="Buchstabe 7 von 8"></label>
+        <label class="k"><span class="si">8</span><input type="text" inputmode="text" autocomplete="off" autocorrect="off" autocapitalize="characters" spellcheck="false" aria-label="Buchstabe 8 von 8"></label>
+        </div>
+        <button class="knopf" type="submit">Prüfen →</button>
+      </div>
+      <p class="meldung" id="meldung" aria-live="polite"></p>
+    </div>
+  </form>
 </main>
 <script>
-document.querySelectorAll('[data-text]').forEach(function (el) {
-  var v = TEXTE[el.dataset.text];
-  if (v != null) el.textContent = v;
-});
+
+function normalisiere(s) {
+  return String(s).trim().toLowerCase()
+    .replace(/ä/g, 'ae').replace(/ö/g, 'oe').replace(/ü/g, 'ue').replace(/ß/g, 'ss')
+    .replace(/[^a-z]/g, '');
+}
+function sha256(s) {
+  return crypto.subtle.digest('SHA-256', new TextEncoder().encode(s)).then(function (buf) {
+    return Array.prototype.map.call(new Uint8Array(buf), function (b) {
+      return ('0' + b.toString(16)).slice(-2);
+    }).join('');
+  });
+}
+
+(function () {
+  var SOLL = '5bfa2a389b0da33f1b2c608db394f35566ac02213a1deda37aaeba6ab47b9a54';
+  var felder = Array.prototype.slice.call(document.querySelectorAll('.k input'));
+  var status = document.getElementById('status');
+  var meldung = document.getElementById('meldung');
+  var BUCHSTABE = /[a-zäöüß]/i;
+
+  function zeige(stat, text) { status.textContent = stat; meldung.textContent = text; }
+  function buchstaben(s) { return String(s).split('').filter(function (c) { return BUCHSTABE.test(c); }); }
+  function gross(c) { return c === 'ß' ? c : c.toUpperCase(); }
+  function verteile(text, ab) {
+    var cs = buchstaben(text);
+    for (var k = 0; k < cs.length && ab + k < felder.length; k++) felder[ab + k].value = gross(cs[k]);
+    felder[Math.min(ab + cs.length, felder.length - 1)].focus();
+  }
+  function vollstaendig() { return felder.every(function (f) { return f.value; }); }
+
+  felder.forEach(function (f, i) {
+    f.addEventListener('focus', function () { f.select(); });
+    f.addEventListener('input', function () {
+      var cs = buchstaben(f.value), alt = f.dataset.alt || '';
+      zeige('', '');
+      // mehrere Zeichen auf einmal (Autokorrektur, Diktat …) → auf die folgenden Kästchen verteilen;
+      // altes + neues Zeichen → nur das neue behalten
+      if (cs.length > 2 || (cs.length === 2 && !alt)) {
+        verteile(cs.join(''), i);
+      } else {
+        f.value = cs.length ? gross(cs[cs.length - 1]) : '';
+        if (f.value && i < felder.length - 1) felder[i + 1].focus();
+      }
+      felder.forEach(function (g) { g.dataset.alt = g.value; });
+      if (f.value && vollstaendig() && document.activeElement === felder[felder.length - 1]) pruefe();
+    });
+    f.addEventListener('paste', function (e) {
+      e.preventDefault();
+      verteile((e.clipboardData || window.clipboardData).getData('text'), i);
+      felder.forEach(function (g) { g.dataset.alt = g.value; });
+      if (vollstaendig()) pruefe();
+    });
+    f.addEventListener('keydown', function (e) {
+      if (e.key === 'Backspace' && !f.value && i > 0) {
+        e.preventDefault(); felder[i - 1].value = felder[i - 1].dataset.alt = ''; felder[i - 1].focus();
+      } else if (e.key === 'ArrowLeft' && i > 0) { e.preventDefault(); felder[i - 1].focus(); }
+      else if (e.key === 'ArrowRight' && i < felder.length - 1) { e.preventDefault(); felder[i + 1].focus(); }
+    });
+  });
+
+  function pruefe() {
+    if (!vollstaendig()) { zeige('', 'Es fehlen noch Buchstaben.'); return; }
+    if (!window.crypto || !crypto.subtle) { zeige('', 'Bitte die Seite über https:// öffnen.'); return; }
+    var wort = normalisiere(felder.map(function (f) { return f.value; }).join(''));
+    sha256(wort).then(function (ist) {
+      if (ist === SOLL) {
+        zeige('● Gelöst', 'Richtig gedacht!');
+        location.href = './' + wort + '/';
+      } else {
+        zeige('● Noch nicht', 'Noch nicht ganz – nochmal um die Ecke denken.');
+      }
+    });
+  }
+  document.getElementById('form').addEventListener('submit', function (e) { e.preventDefault(); pruefe(); });
+})();
 </script>
 </body>
 </html>

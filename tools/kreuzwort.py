@@ -119,10 +119,14 @@ def lade_config(pfad):
     user = cfg['github_user'].strip()
     if not re.fullmatch(r'[A-Za-z0-9-]+', user):
         raise Fehler('github_user ist ungültig.')
+    projekt = str(cfg.get('projekt', '')).strip()
+    if not re.fullmatch(r'[a-z0-9-]+', projekt):
+        raise Fehler('projekt (Repo-Name) fehlt oder enthält andere Zeichen als a–z, 0–9, -. '
+                     'Nur Kleinbuchstaben: GitHub Pages unterscheidet Groß/Klein in der Adresse.')
 
     return {
         'roh': cfg, 'hinweise': hinweise, 'pflicht': pflicht, 'loesung': loesung,
-        'url_wort': url_wort, 'R': R, 'C': C, 'frei': frei, 'user': user.lower(),
+        'url_wort': url_wort, 'R': R, 'C': C, 'frei': frei, 'user': user.lower(), 'projekt': projekt,
         'gen': cfg.get('generator', {}),
     }
 
@@ -503,7 +507,8 @@ def erzeugen(cfg, ausgabe, seed=None, versuche=None):
         'loesungswort': loesung,
         'url_wort': cfg['url_wort'],
         'github_user': cfg['user'],
-        'url': f'https://{cfg["user"]}.github.io/{cfg["url_wort"]}/',
+        'projekt': cfg['projekt'],
+        'url': f'https://{cfg["user"]}.github.io/{cfg["projekt"]}/',
         'zeilen': cfg['R'],
         'spalten': cfg['C'],
         'feld_mm': feld_mm(cfg['R'], cfg['C']),
@@ -603,19 +608,20 @@ def pruefen(puzzle_pfad, html_pruefen=True):
             t = loes.read_text(encoding='utf-8')
             ok(t.count('class="l"') == sum(ch != BLOCK for z in raster for ch in z),
                'raetsel-loesung.html: nicht alle Buchstaben eingetragen.')
-        ok((basis / 'docs' / 'index.html').exists() or not blatt.exists(), 'docs/index.html fehlt.')
-        site = basis / f'{p["github_user"]}.github.io'
-        if site.exists():
-            ok((site / '404.html').exists(), f'{site.name}/404.html fehlt.')
-            # die 404-Seite fängt falsche Lösungen ab: sie darf das Wort nicht verraten
-            for f in site.rglob('*'):
-                if '.git' in f.relative_to(site).parts[:1]:
-                    continue
-                ok(lw.lower() not in str(f.relative_to(site)).lower(),
-                   f'{site.name}: Pfad {f.relative_to(site)} verrät das Lösungswort.')
-                if f.is_file():
-                    ok(lw.lower() not in f.read_text(encoding='utf-8', errors='ignore').lower(),
-                       f'{site.name}/{f.relative_to(site)} verrät das Lösungswort.')
+        docs = basis / 'docs'
+        if docs.exists():
+            for datei in ('index.html', '404.html', f'{p["url_wort"]}/index.html'):
+                ok((docs / datei).exists(), f'docs/{datei} fehlt.')
+            # Eingabe- und Fehlerseite dürfen das Wort nicht verraten (nur der Hash steht drin)
+            for datei in ('index.html', '404.html'):
+                if (docs / datei).exists():
+                    t = (docs / datei).read_text(encoding='utf-8')
+                    ok(lw.lower() not in t.lower(), f'docs/{datei} verrät das Lösungswort.')
+                    ok(hashlib.sha256(p['url_wort'].encode()).hexdigest() in t,
+                       f'docs/{datei}: Hash des Lösungsworts fehlt.')
+        if blatt.exists():
+            ok(f'{p["github_user"]}.github.io/{p["projekt"]}' in blatt.read_text(encoding='utf-8'),
+               'raetsel.html: Adresse der Eingabeseite fehlt.')
 
     if fehler:
         return melde(fehler)
@@ -685,11 +691,12 @@ body{font-family:'Hanken Grotesk',sans-serif;color:var(--ink);
 .h{display:flex;gap:2.25mm}
 .h .nr{width:5.25mm;flex:none;font-weight:700}
 
-/* Fuß: Lösung → Adresse */
+/* Fuß: Lösungswort → Adresse der Eingabeseite */
 .fuss{margin-top:auto;border-top:0.75mm solid var(--ink);padding-top:4.5mm;
   display:flex;flex-direction:column;gap:3mm}
 .fuss .label{font-size:3.5625mm;font-weight:800;text-transform:uppercase;letter-spacing:.1em}
-.adresse{display:flex;align-items:center;gap:2.25mm;font-size:4.875mm;font-weight:500}
+.adresse{display:flex;align-items:flex-end;flex-wrap:wrap;gap:2.25mm 4.5mm;font-size:4.875mm;font-weight:500}
+.ziel{padding-bottom:1.5mm;white-space:nowrap}
 .slots{display:flex;gap:0.75mm}
 .slot{position:relative;width:9mm;height:9.75mm;border-bottom:0.75mm solid var(--accent);
   display:flex;align-items:flex-end;justify-content:center;font-weight:700;font-size:5.25mm;
@@ -767,8 +774,8 @@ def blatt_html(p, cfg_roh, mit_loesung):
   </section>
 
   <footer class="fuss">
-    <div class="label">Lösung → Adresse</div>
-    <div class="adresse"><span>{esc(p['github_user'])}.github.io/</span><div class="slots">{slots}</div></div>
+    <div class="label">Lösungswort → eingeben auf</div>
+    <div class="adresse"><div class="slots">{slots}</div><span class="ziel">→ {esc(p['github_user'])}.github.io/{esc(p['projekt'])}</span></div>
   </footer>
 </main>
 </body>
@@ -851,10 +858,161 @@ document.querySelectorAll('[data-text]').forEach(function (el) {{
 """
 
 
+# Gemeinsames JS: Eingabe normalisieren und SHA-256 bilden. Im öffentlichen Quelltext steht nur
+# der Hash des Lösungsworts, nie das Wort selbst.
+HASH_JS = """
+function normalisiere(s) {
+  return String(s).trim().toLowerCase()
+    .replace(/ä/g, 'ae').replace(/ö/g, 'oe').replace(/ü/g, 'ue').replace(/ß/g, 'ss')
+    .replace(/[^a-z]/g, '');
+}
+function sha256(s) {
+  return crypto.subtle.digest('SHA-256', new TextEncoder().encode(s)).then(function (buf) {
+    return Array.prototype.map.call(new Uint8Array(buf), function (b) {
+      return ('0' + b.toString(16)).slice(-2);
+    }).join('');
+  });
+}
+"""
+
+
+def soll_hash(p):
+    return hashlib.sha256(p['url_wort'].encode('utf-8')).hexdigest()
+
+
+EINGABE_CSS = """
+.eingabe{margin-top:auto;padding-top:64px}
+.eingabe .rahmen{border-top:2px solid var(--ink);padding-top:12px;display:flex;flex-direction:column;gap:14px}
+.label{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.1em}
+.zeile{display:flex;align-items:flex-end;flex-wrap:wrap;gap:16px 24px}
+.kaestchen{display:flex;gap:6px}
+.k{position:relative;display:block;width:48px;height:60px;border-bottom:2px solid var(--accent)}
+.k:focus-within{border-bottom-color:var(--ink)}
+.k .si{position:absolute;top:2px;left:2px;font-size:10px;font-weight:800;color:var(--accent);pointer-events:none}
+.k input{box-sizing:border-box;width:100%;height:100%;margin:0;padding:14px 0 0;border:0;border-radius:0;
+  background:transparent;outline:none;text-align:center;text-transform:uppercase;
+  font:700 32px/1 'Hanken Grotesk',sans-serif;color:var(--ink);caret-color:var(--accent)}
+.knopf{display:inline-flex;align-items:center;height:48px;padding:0 22px;border:0;border-radius:0;
+  background:var(--ink);color:var(--paper);font:700 12px 'Hanken Grotesk',sans-serif;
+  text-transform:uppercase;letter-spacing:.1em;text-decoration:none;cursor:pointer}
+.knopf:hover{opacity:.85}
+.meldung{margin:0;min-height:1.5em;font-size:15px;line-height:1.5;color:var(--text)}
+@media (max-width:639px){
+  .kaestchen{display:grid;grid-template-columns:repeat(__N__,1fr);gap:4px;width:100%}
+  .k{width:auto;height:52px}
+  .k input{font-size:24px;padding-top:12px}
+  .knopf{width:100%;justify-content:center}
+}
+"""
+
+
+def eingabe_html(p, cfg_roh):
+    blatt = cfg_roh.get('blatt', {})
+    n = len(p['loesungswort'])
+    kaestchen = ''.join(
+        f'\n        <label class="k"><span class="si">{i + 1}</span>'
+        f'<input type="text" inputmode="text" autocomplete="off" autocorrect="off" '
+        f'autocapitalize="characters" spellcheck="false" aria-label="Buchstabe {i + 1} von {n}"></label>'
+        for i in range(n))
+    return f"""<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Um die Ecke gedacht.</title>
+{FONT_LINK}
+<style>{SEITE_CSS}{EINGABE_CSS.replace('__N__', str(n))}</style>
+</head>
+<body>
+<main class="seite">
+  <div class="kopf"><span>{esc(blatt.get('nummer', 'Nº 01'))} · {esc(blatt.get('widmung', 'Für dich'))}</span><span class="status" id="status" aria-live="polite"></span></div>
+  <h1>Um die Ecke<br>gedacht<span class="punkt">.</span></h1>
+  <p class="intro">Trag das Lösungswort aus dem Rätsel ein – Buchstabe für Buchstabe, in der Reihenfolge der roten Zahlen.</p>
+  <form class="eingabe" id="form" autocomplete="off" novalidate>
+    <div class="rahmen">
+      <div class="label">Lösungswort</div>
+      <div class="zeile">
+        <div class="kaestchen">{kaestchen}
+        </div>
+        <button class="knopf" type="submit">Prüfen →</button>
+      </div>
+      <p class="meldung" id="meldung" aria-live="polite"></p>
+    </div>
+  </form>
+</main>
+<script>
+{HASH_JS}
+(function () {{
+  var SOLL = '{soll_hash(p)}';
+  var felder = Array.prototype.slice.call(document.querySelectorAll('.k input'));
+  var status = document.getElementById('status');
+  var meldung = document.getElementById('meldung');
+  var BUCHSTABE = /[a-zäöüß]/i;
+
+  function zeige(stat, text) {{ status.textContent = stat; meldung.textContent = text; }}
+  function buchstaben(s) {{ return String(s).split('').filter(function (c) {{ return BUCHSTABE.test(c); }}); }}
+  function gross(c) {{ return c === 'ß' ? c : c.toUpperCase(); }}
+  function verteile(text, ab) {{
+    var cs = buchstaben(text);
+    for (var k = 0; k < cs.length && ab + k < felder.length; k++) felder[ab + k].value = gross(cs[k]);
+    felder[Math.min(ab + cs.length, felder.length - 1)].focus();
+  }}
+  function vollstaendig() {{ return felder.every(function (f) {{ return f.value; }}); }}
+
+  felder.forEach(function (f, i) {{
+    f.addEventListener('focus', function () {{ f.select(); }});
+    f.addEventListener('input', function () {{
+      var cs = buchstaben(f.value), alt = f.dataset.alt || '';
+      zeige('', '');
+      // mehrere Zeichen auf einmal (Autokorrektur, Diktat …) → auf die folgenden Kästchen verteilen;
+      // altes + neues Zeichen → nur das neue behalten
+      if (cs.length > 2 || (cs.length === 2 && !alt)) {{
+        verteile(cs.join(''), i);
+      }} else {{
+        f.value = cs.length ? gross(cs[cs.length - 1]) : '';
+        if (f.value && i < felder.length - 1) felder[i + 1].focus();
+      }}
+      felder.forEach(function (g) {{ g.dataset.alt = g.value; }});
+      if (f.value && vollstaendig() && document.activeElement === felder[felder.length - 1]) pruefe();
+    }});
+    f.addEventListener('paste', function (e) {{
+      e.preventDefault();
+      verteile((e.clipboardData || window.clipboardData).getData('text'), i);
+      felder.forEach(function (g) {{ g.dataset.alt = g.value; }});
+      if (vollstaendig()) pruefe();
+    }});
+    f.addEventListener('keydown', function (e) {{
+      if (e.key === 'Backspace' && !f.value && i > 0) {{
+        e.preventDefault(); felder[i - 1].value = felder[i - 1].dataset.alt = ''; felder[i - 1].focus();
+      }} else if (e.key === 'ArrowLeft' && i > 0) {{ e.preventDefault(); felder[i - 1].focus(); }}
+      else if (e.key === 'ArrowRight' && i < felder.length - 1) {{ e.preventDefault(); felder[i + 1].focus(); }}
+    }});
+  }});
+
+  function pruefe() {{
+    if (!vollstaendig()) {{ zeige('', 'Es fehlen noch Buchstaben.'); return; }}
+    if (!window.crypto || !crypto.subtle) {{ zeige('', 'Bitte die Seite über https:// öffnen.'); return; }}
+    var wort = normalisiere(felder.map(function (f) {{ return f.value; }}).join(''));
+    sha256(wort).then(function (ist) {{
+      if (ist === SOLL) {{
+        zeige('● Gelöst', 'Richtig gedacht!');
+        location.href = './' + wort + '/';
+      }} else {{
+        zeige('● Noch nicht', 'Noch nicht ganz – nochmal um die Ecke denken.');
+      }}
+    }});
+  }}
+  document.getElementById('form').addEventListener('submit', function (e) {{ e.preventDefault(); pruefe(); }});
+}})();
+</script>
+</body>
+</html>
+"""
+
+
 def fehlerseite_html(p):
-    leer = '<span class="luecke"></span>' * len(p['loesungswort'])
-    # Nur der SHA-256 des Lösungsworts steht im (öffentlichen) Quelltext.
-    soll = hashlib.sha256(p['url_wort'].encode('utf-8')).hexdigest()
+    basis = f"/{p['projekt']}/"
     return f"""<!DOCTYPE html>
 <html lang="de">
 <head>
@@ -863,48 +1021,38 @@ def fehlerseite_html(p):
 <meta name="robots" content="noindex, nofollow">
 <title>Noch nicht ganz.</title>
 <script>
-/* Richtiges Wort in anderer Schreibweise (Großbuchstaben, Ä statt AE …)
-   → zur Lösungsseite weiterleiten. Verglichen wird nur der SHA-256-Hash. */
+{HASH_JS}
+/* Lösungswort direkt an die Adresse gehängt, in anderer Schreibweise (Großbuchstaben,
+   Ä statt AE …) → zur Lösungsseite. Verglichen wird nur der SHA-256-Hash. */
 (function () {{
-  var SOLL = '{soll}';
-  var seg = location.pathname.split('/').filter(Boolean)[0];
-  if (!seg || !window.crypto || !crypto.subtle) return;
+  var SOLL = '{soll_hash(p)}', BASIS = '{basis}';
+  var pfad = location.pathname;
+  if (pfad.toLowerCase().indexOf(BASIS) !== 0 || !window.crypto || !crypto.subtle) return;
+  var seg = pfad.slice(BASIS.length).split('/').filter(Boolean)[0];
   var wort;
-  try {{ wort = decodeURIComponent(seg); }} catch (e) {{ return; }}
-  wort = wort.trim().toLowerCase()
-    .replace(/ä/g, 'ae').replace(/ö/g, 'oe').replace(/ü/g, 'ue').replace(/ß/g, 'ss')
-    .replace(/[^a-z]/g, '');
+  try {{ wort = normalisiere(decodeURIComponent(seg || '')); }} catch (e) {{ return; }}
   if (!wort) return;
   var html = document.documentElement;
   html.style.visibility = 'hidden';
-  crypto.subtle.digest('SHA-256', new TextEncoder().encode(wort)).then(function (buf) {{
-    var ist = Array.prototype.map.call(new Uint8Array(buf), function (b) {{
-      return ('0' + b.toString(16)).slice(-2);
-    }}).join('');
-    if (ist === SOLL && location.pathname !== '/' + wort + '/') location.replace('/' + wort + '/');
+  sha256(wort).then(function (ist) {{
+    if (ist === SOLL && pfad !== BASIS + wort + '/') location.replace(BASIS + wort + '/');
     else html.style.visibility = '';
   }}, function () {{ html.style.visibility = ''; }});
 }})();
 </script>
 {FONT_LINK}
-<style>{SEITE_CSS}
-.adresse{{margin-top:auto;padding-top:64px}}
-.adresse .label{{border-top:2px solid var(--ink);padding-top:12px;font-size:11px;font-weight:800;
-  text-transform:uppercase;letter-spacing:.1em}}
-.zeile{{display:flex;align-items:center;flex-wrap:wrap;gap:6px;margin-top:10px;font-size:18px;font-weight:500}}
-.luecken{{display:flex;gap:3px}}
-.luecke{{width:22px;height:26px;border-bottom:2px solid var(--accent)}}
-@media (max-width:639px){{.luecke{{width:16px;height:22px}}}}
-</style>
+<style>{SEITE_CSS}{EINGABE_CSS.replace('__N__', str(len(p['loesungswort'])))}</style>
 </head>
 <body>
 <main class="seite">
   <div class="kopf"><span>404</span><span class="status">● Noch nicht</span></div>
   <h1>Noch nicht<br>ganz<span class="punkt">.</span></h1>
   <p class="intro">Noch nicht ganz – nochmal um die Ecke denken.</p>
-  <section class="adresse">
-    <div class="label">Lösung → Adresse</div>
-    <div class="zeile"><span>{esc(p['github_user'])}.github.io/</span><span class="luecken">{leer}</span></div>
+  <section class="eingabe">
+    <div class="rahmen">
+      <div class="label">Lösungswort eingeben</div>
+      <div class="zeile"><a class="knopf" href="{basis}">Zur Eingabe →</a></div>
+    </div>
   </section>
 </main>
 </body>
@@ -917,19 +1065,16 @@ def rendern(puzzle_pfad, cfg_roh, basis):
     basis = Path(basis)
     (basis / 'raetsel.html').write_text(blatt_html(p, cfg_roh, False), encoding='utf-8')
     (basis / 'raetsel-loesung.html').write_text(blatt_html(p, cfg_roh, True), encoding='utf-8')
-    # GitHub Pages: das Projekt-Repo heißt wie das Lösungswort und veröffentlicht docs/
-    # → https://<user>.github.io/<loesungswort>/
+    # GitHub Pages veröffentlicht docs/ unter https://<user>.github.io/<projekt>/
     docs = basis / 'docs'
-    docs.mkdir(exist_ok=True)
-    (docs / 'index.html').write_text(seite_html(p, cfg_roh.get('seite', {})), encoding='utf-8')
+    (docs / p['url_wort']).mkdir(parents=True, exist_ok=True)
+    (docs / 'index.html').write_text(eingabe_html(p, cfg_roh), encoding='utf-8')
+    (docs / p['url_wort'] / 'index.html').write_text(seite_html(p, cfg_roh.get('seite', {})),
+                                                     encoding='utf-8')
     (docs / '404.html').write_text(fehlerseite_html(p), encoding='utf-8')
     (docs / '.nojekyll').write_text('', encoding='utf-8')
-    # Repo <user>.github.io: nur die 404-Seite für falsche Lösungen (verrät das Wort nicht)
-    site = basis / f'{p["github_user"]}.github.io'
-    site.mkdir(exist_ok=True)
-    (site / '404.html').write_text(fehlerseite_html(p), encoding='utf-8')
-    (site / '.nojekyll').write_text('', encoding='utf-8')
-    print(f'✓ raetsel.html, raetsel-loesung.html, docs/index.html, docs/404.html, {site.name}/404.html')
+    print(f'✓ raetsel.html, raetsel-loesung.html, docs/index.html (Eingabe), '
+          f'docs/{p["url_wort"]}/index.html (Lösung), docs/404.html → {p["url"]}')
 
 
 # --------------------------------------------------------------------------- CLI

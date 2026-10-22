@@ -54,11 +54,12 @@ body{font-family:'Hanken Grotesk',sans-serif;color:var(--ink);
 .h{display:flex;gap:2.25mm}
 .h .nr{width:5.25mm;flex:none;font-weight:700}
 
-/* Fuß: Lösung → Adresse */
+/* Fuß: Lösungswort → Adresse der Eingabeseite */
 .fuss{margin-top:auto;border-top:0.75mm solid var(--ink);padding-top:4.5mm;
   display:flex;flex-direction:column;gap:3mm}
 .fuss .label{font-size:3.5625mm;font-weight:800;text-transform:uppercase;letter-spacing:.1em}
-.adresse{display:flex;align-items:center;gap:2.25mm;font-size:4.875mm;font-weight:500}
+.adresse{display:flex;align-items:flex-end;flex-wrap:wrap;gap:2.25mm 4.5mm;font-size:4.875mm;font-weight:500}
+.ziel{padding-bottom:1.5mm;white-space:nowrap}
 .slots{display:flex;gap:0.75mm}
 .slot{position:relative;width:9mm;height:9.75mm;border-bottom:0.75mm solid var(--accent);
   display:flex;align-items:flex-end;justify-content:center;font-weight:700;font-size:5.25mm;
@@ -102,8 +103,8 @@ body{font-family:'Hanken Grotesk',sans-serif;color:var(--ink);
   </section>
 
   <footer class="fuss">
-    <div class="label">Lösung → Adresse</div>
-    <div class="adresse"><span>rgn24.github.io/</span><div class="slots"><div class="slot"><span class="si">1</span></div><div class="slot"><span class="si">2</span></div><div class="slot"><span class="si">3</span></div><div class="slot"><span class="si">4</span></div><div class="slot"><span class="si">5</span></div><div class="slot"><span class="si">6</span></div><div class="slot"><span class="si">7</span></div><div class="slot"><span class="si">8</span></div></div></div>
+    <div class="label">Lösungswort → eingeben auf</div>
+    <div class="adresse"><div class="slots"><div class="slot"><span class="si">1</span></div><div class="slot"><span class="si">2</span></div><div class="slot"><span class="si">3</span></div><div class="slot"><span class="si">4</span></div><div class="slot"><span class="si">5</span></div><div class="slot"><span class="si">6</span></div><div class="slot"><span class="si">7</span></div><div class="slot"><span class="si">8</span></div></div><span class="ziel">→ rgn24.github.io/romanhatgeburtstag</span></div>
   </footer>
 </main>
 </body>
