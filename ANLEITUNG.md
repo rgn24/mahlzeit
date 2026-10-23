@@ -38,6 +38,7 @@ Lässt sich das Lösungswort nicht auf eigene Felder verteilen (Buchstabe fehlt 
 - `docs/` – wird von GitHub Pages veröffentlicht:
   - `index.html` – Eingabeseite mit 8 Kästchen (richtig → Lösungsseite, falsch → „Noch nicht ganz“)
   - `<loesungswort>/index.html` – Lösungsseite (Wann / Wo / Was)
+  - `tipps/index.html` – Tipps: zu jeder Frage zufällige Buchstaben aufdecken (bleibt pro Gerät gespeichert; Antworten nur verschleiert im Quelltext)
   - `404.html` – falsche Adressen unter dem Projekt; leitet das richtige Wort in jeder Schreibweise weiter
 
 ## Texte Wann / Wo / Was
