@@ -10,7 +10,7 @@
 | `loesungswoerter` | Wörter, die auf jeden Fall ins Raster müssen (`[]` = freie Wahl aus der Wortliste) |
 | `wortliste` | Kandidaten `{ "wort", "hinweis" }` – Wortlänge `(n)` wird automatisch angehängt, Ä/Ö/Ü/ß → AE/OE/UE/SS |
 | `generator` | `seed`, `versuche`, `max_woerter`, `alle_pflicht` (jedes Wort der Liste muss rein), `suche_knoten` / `suche_breite` (Suchtiefe für Pflichtwörter) |
-| `druck` | `hinweis_mm` (Schriftgröße der Fragen), `min_feld_mm` (kleinste erlaubte Feldgröße) |
+| `druck` | `hinweis_mm` (Schriftgröße der Fragen), `min_feld_mm` (kleinste erlaubte Feldgröße), `blockfarbe` (Blockfelder, Standard `#D9D9D9`; dunkler z. B. `#BDBDBD`) |
 | `blatt` | Kopf rechts auf dem Druckblatt (`nummer`, `widmung`) |
 | `seite` | **Texte der Lösungsseite:** `intro`, `wann`, `wo`, `was` |
 

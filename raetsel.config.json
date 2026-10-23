@@ -99,6 +99,7 @@
   },
   "druck": {
     "hinweis_mm": 3.1,
-    "min_feld_mm": 5.5
+    "min_feld_mm": 5.5,
+    "blockfarbe": "#D9D9D9"
   }
 }

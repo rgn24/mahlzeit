@@ -126,6 +126,8 @@ def lade_config(pfad):
     global HINWEIS_FS, MIN_FELD
     HINWEIS_FS = float(druck.get('hinweis_mm', 10.5 * PX))
     MIN_FELD = float(druck.get('min_feld_mm', 7.0))
+    if not re.fullmatch(r'#[0-9A-Fa-f]{6}', str(druck.get('blockfarbe', '#111111'))):
+        raise Fehler('druck.blockfarbe muss eine Hex-Farbe wie "#D9D9D9" sein.')
 
     loesung = normalisiere(cfg['loesungswort'])
     url_wort = loesung.lower()
@@ -776,6 +778,7 @@ BLATT_CSS = """
 :root{
   --ink:#111111; --paper:#FFFFFF; --accent:#E2401C;
   --cell:%(cell)smm; --line:0.375mm; --cols:%(cols)s; --hfs:%(hfs)smm;
+  --block:%(block)s;   /* Blockfelder: helles Grau druckt gleichmäßiger als Vollschwarz */
 }
 @page{size:A4;margin:0}
 *{box-sizing:border-box}
@@ -798,10 +801,11 @@ body{font-family:'Hanken Grotesk',sans-serif;color:var(--ink);
 
 /* Raster */
 .raster{display:grid;grid-template-columns:repeat(var(--cols),var(--cell));
-  grid-auto-rows:var(--cell);gap:var(--line);background:var(--ink);
+  grid-auto-rows:var(--cell);gap:var(--line);background:var(--block);
   border:var(--line) solid var(--ink);width:max-content}
-.f{position:relative;background:var(--paper)}
-.f.b{background:var(--ink)}
+/* Linien nur um offene Felder; Blockflächen bleiben eine ruhige, zusammenhängende Fläche */
+.f{position:relative;background:var(--paper);outline:var(--line) solid var(--ink)}
+.f.b{background:var(--block);outline:0}
 .f .n{position:absolute;top:calc(var(--cell) * .0667);left:calc(var(--cell) * .1);
   font-size:calc(var(--cell) * .25);font-weight:700}
 .f.s::after{content:"";position:absolute;inset:0;
@@ -872,7 +876,8 @@ def blatt_html(p, cfg_roh, mit_loesung):
         f'<div class="slot"><span class="si">{i + 1}</span>{esc(ch.lower()) if mit_loesung else ""}</div>'
         for i, ch in enumerate(p['loesungswort']))
 
-    css = BLATT_CSS % {'cell': p['feld_mm'], 'cols': p['spalten'], 'hfs': p.get('hinweis_mm', 10.5 * PX)}
+    css = BLATT_CSS % {'cell': p['feld_mm'], 'cols': p['spalten'], 'hfs': p.get('hinweis_mm', 10.5 * PX),
+                       'block': (cfg_roh.get('druck') or {}).get('blockfarbe', '#111111')}
     titel = 'Um die Ecke gedacht – Lösung' if mit_loesung else 'Um die Ecke gedacht'
     return f"""<!DOCTYPE html>
 <html lang="de">
