@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Tipps – Um die Ecke gedacht.</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#111111;--paper:#FFFFFF;--accent:#E2401C;--text:#333333;--text-2:#555555}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--paper)}
+body{font-family:'Hanken Grotesk',sans-serif;color:var(--ink);-webkit-font-smoothing:antialiased}
+.seite{min-height:100vh;min-height:100svh;max-width:1040px;margin:0 auto;padding:48px 56px;
+  display:flex;flex-direction:column}
+.kopf{display:flex;justify-content:space-between;gap:16px;font-size:12px;font-weight:700;
+  text-transform:uppercase;letter-spacing:.1em}
+.status{color:var(--accent)}
+h1{font-size:104px;font-weight:800;letter-spacing:-.05em;line-height:.9;margin:96px 0 0}
+.punkt{color:var(--accent)}
+.intro{font-size:17px;line-height:1.5;max-width:420px;margin:28px 0 0;color:var(--text);
+  text-wrap:pretty;white-space:pre-line}
+.infos{margin-top:auto;padding-top:64px;display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
+.info{border-top:2px solid var(--ink);padding-top:12px;display:flex;flex-direction:column;gap:6px}
+.info .nr{font-size:11px;font-weight:700;color:var(--accent)}
+.info h2{margin:0;font-size:18px;font-weight:700}
+.info p{margin:0;font-size:14px;line-height:1.45;color:var(--text-2);white-space:pre-line}
+@media (max-width:639px){
+  .seite{padding:32px 24px}
+  h1{font-size:60px;margin-top:64px}
+  .intro{font-size:16px}
+  .infos{grid-template-columns:1fr;gap:20px;padding-top:56px}
+}
+
+.tipp-link{margin:0;font-size:14px;color:var(--text)}
+.tipp-link a{color:var(--ink);font-weight:700;text-underline-offset:3px}
+.eingabe{margin-top:auto;padding-top:64px}
+.eingabe .rahmen{border-top:2px solid var(--ink);padding-top:12px;display:flex;flex-direction:column;gap:14px}
+.label{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.1em}
+.zeile{display:flex;align-items:flex-end;flex-wrap:wrap;gap:16px 24px}
+.kaestchen{display:flex;gap:6px}
+.k{position:relative;display:block;width:48px;height:60px;border-bottom:2px solid var(--accent)}
+.k:focus-within{border-bottom-color:var(--ink)}
+.k .si{position:absolute;top:2px;left:2px;font-size:10px;font-weight:800;color:var(--accent);pointer-events:none}
+.k input{box-sizing:border-box;width:100%;height:100%;margin:0;padding:14px 0 0;border:0;border-radius:0;
+  background:transparent;outline:none;text-align:center;text-transform:uppercase;
+  font:700 32px/1 'Hanken Grotesk',sans-serif;color:var(--ink);caret-color:var(--accent)}
+.knopf{display:inline-flex;align-items:center;height:48px;padding:0 22px;border:0;border-radius:0;
+  background:var(--ink);color:var(--paper);font:700 12px 'Hanken Grotesk',sans-serif;
+  text-transform:uppercase;letter-spacing:.1em;text-decoration:none;cursor:pointer}
+.knopf:hover{opacity:.85}
+.meldung{margin:0;min-height:1.5em;font-size:15px;line-height:1.5;color:var(--text)}
+@media (max-width:639px){
+  .kaestchen{display:grid;grid-template-columns:repeat(8,1fr);gap:4px;width:100%}
+  .k{width:auto;height:52px}
+  .k input{font-size:24px;padding-top:12px}
+  .knopf{width:100%;justify-content:center}
+}
+
+.zurueck{color:var(--ink);text-decoration:none}
+.zurueck:hover{opacity:.7}
+.liste{margin-top:56px;display:flex;flex-direction:column;gap:40px}
+.gruppe h2{margin:0 0 4px;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.1em}
+.frage{border-top:2px solid var(--ink)}
+.gruppe .frage + .frage{border-top:1px solid #E5E5E5}
+.frage > button{all:unset;box-sizing:border-box;width:100%;display:flex;gap:14px;align-items:baseline;
+  padding:14px 0;cursor:pointer;font-size:16px;line-height:1.45;color:var(--ink)}
+.frage > button:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+.frage .nr{flex:none;width:28px;font-weight:700}
+.frage .text{flex:1}
+.frage .mehr{flex:none;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--text-2)}
+.frage[data-offen] .mehr{color:var(--accent)}
+.detail{padding:4px 0 22px 42px;display:flex;flex-direction:column;gap:16px}
+.detail[hidden]{display:none}
+.wort{display:grid;grid-template-columns:repeat(var(--n),minmax(0,40px));gap:4px}
+.b{position:relative;height:48px;border-bottom:2px solid var(--ink);display:flex;align-items:flex-end;
+  justify-content:center;padding-bottom:4px;font-size:24px;font-weight:700}
+.b.s{border-bottom-color:var(--accent)}
+.b .si{position:absolute;top:2px;left:2px;font-size:10px;font-weight:800;color:var(--accent)}
+.b.neu{animation:auf .5s ease-out}
+@keyframes auf{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
+.aktion{display:flex;align-items:center;flex-wrap:wrap;gap:12px 20px}
+.stand{font-size:14px;color:var(--text-2)}
+.knopf[disabled]{opacity:.35;cursor:default}
+@media (max-width:639px){
+  .liste{margin-top:40px}
+  .detail{padding-left:0}
+  .wort{gap:3px}
+  .b{height:40px;font-size:18px}
+  .b .si{font-size:9px}
+}
+</style>
+</head>
+<body>
+<main class="seite">
+  <div class="kopf"><span>Tipps</span><a class="zurueck" href="../">← Zur Eingabe</a></div>
+  <h1>Kleiner<br>Schubs<span class="punkt">.</span></h1>
+  <p class="intro">Wähl eine Frage. Jeder Klick deckt einen zufälligen Buchstaben auf – so viele, wie du brauchst. Rot unterstrichen sind die Felder fürs Lösungswort.</p>
+  <div class="liste">
+    <section class="gruppe"><h2>Waagerecht</h2>
+      <div class="frage" data-id="3w"><button type="button" aria-expanded="false"><span class="nr">3</span><span class="text">Lieblingsspiel beim 13 waagerecht. (leider ohne uns) (8)</span><span class="mehr">Tipp</span></button><div class="detail" hidden></div></div>
+      <div class="frage" data-id="5w"><button type="button" aria-expanded="false"><span class="nr">5</span><span class="text">Hessisch für Fortgeschrittene, flüssig serviert. (8)</span><span class="mehr">Tipp</span></button><div class="detail" hidden></div></div>
+      <div class="frage" data-id="9w"><button type="button" aria-expanded="false"><span class="nr">9</span><span class="text">Damals Besuchermagnet, heute Alltagsgegenstand in jeder Küche. (8)</span><span class="mehr">Tipp</span></button><div class="detail" hidden></div></div>
+      <div class="frage" data-id="10w"><button type="button" aria-expanded="false"><span class="nr">10</span><span class="text">Welches Wiedersehen war jedes Jahr eine Abschiedstournee? (10)</span><span class="mehr">Tipp</span></button><div class="detail" hidden></div></div>
+      <div class="frage" data-id="13w"><button type="button" aria-expanded="false"><span class="nr">13</span><span class="text">Wo hätte Newton statt einer Beule einen Ohrwurm bekommen? (15)</span><span class="mehr">Tipp</span></button><div class="detail" hidden></div></div>
+      <div class="frage" data-id="14w"><button type="button" aria-expanded="false"><span class="nr">14</span><span class="text">Darf bei keinem Fernsehabend fehlen (8)</span><span class="mehr">Tipp</span></button><div class="detail" hidden></div></div>
+      <div class="frage" data-id="15w"><button type="button" aria-expanded="false"><span class="nr">15</span><span class="text">Hier ein Outfit inspiriert von 7 senkrecht zusammenstellen (6)</span><span class="mehr">Tipp</span></button><div class="detail" hidden></div></div>
+      <div class="frage" data-id="16w"><button type="button" aria-expanded="false"><span class="nr">16</span><span class="text">Landessprachlich korrekte Begrüßung in 2 senkrecht. (4)</span><span class="mehr">Tipp</span></button><div class="detail" hidden></div></div>
+      <div class="frage" data-id="17w"><button type="button" aria-expanded="false"><span class="nr">17</span><span class="text">Wer liebt dich am meisten? (4)</span><span class="mehr">Tipp</span></button><div class="detail" hidden></div></div>
+    </section>
+    <section class="gruppe"><h2>Senkrecht</h2>
+      <div class="frage" data-id="1s"><button type="button" aria-expanded="false"><span class="nr">1</span><span class="text">Das Original von diesem Abklatsch. Erscheint wöchentlich. (11)</span><span class="mehr">Tipp</span></button><div class="detail" hidden></div></div>
+      <div class="frage" data-id="2s"><button type="button" aria-expanded="false"><span class="nr">2</span><span class="text">Wo haben die Reichen und Schönen ihren Stammplatz? (13)</span><span class="mehr">Tipp</span></button><div class="detail" hidden></div></div>
+      <div class="frage" data-id="4s"><button type="button" aria-expanded="false"><span class="nr">4</span><span class="text">Wo kann ein einziges Wort gleich mehrere Personen enttarnen? (9)</span><span class="mehr">Tipp</span></button><div class="detail" hidden></div></div>
+      <div class="frage" data-id="6s"><button type="button" aria-expanded="false"><span class="nr">6</span><span class="text">Wo wird das Alt bald zum Alltag? (11)</span><span class="mehr">Tipp</span></button><div class="detail" hidden></div></div>
+      <div class="frage" data-id="7s"><button type="button" aria-expanded="false"><span class="nr">7</span><span class="text">Rennbahn oder Rapkarriere? Thirst Trap im Zirkuszelt. (10)</span><span class="mehr">Tipp</span></button><div class="detail" hidden></div></div>
+      <div class="frage" data-id="8s"><button type="button" aria-expanded="false"><span class="nr">8</span><span class="text">Wo zahlte sich Verrat aus, nur nicht für die Verräterin? (10)</span><span class="mehr">Tipp</span></button><div class="detail" hidden></div></div>
+      <div class="frage" data-id="11s"><button type="button" aria-expanded="false"><span class="nr">11</span><span class="text">Wo wird aus einem Kater ein Seepferdchen? (8)</span><span class="mehr">Tipp</span></button><div class="detail" hidden></div></div>
+      <div class="frage" data-id="12s"><button type="button" aria-expanded="false"><span class="nr">12</span><span class="text">27: tanzen unter Apfelbäumen oder …? (7)</span><span class="mehr">Tipp</span></button><div class="detail" hidden></div></div>
+    </section>
+  </div>
+</main>
+<script>
+(function () {
+  var FRAGEN = [{"id": "3w", "nr": 3, "richtung": "waagerecht", "hinweis": "Lieblingsspiel beim 13 waagerecht. (leider ohne uns) (8)", "laenge": 8, "markiert": [[7, 6]]}, {"id": "5w", "nr": 5, "richtung": "waagerecht", "hinweis": "Hessisch für Fortgeschrittene, flüssig serviert. (8)", "laenge": 8, "markiert": []}, {"id": "9w", "nr": 9, "richtung": "waagerecht", "hinweis": "Damals Besuchermagnet, heute Alltagsgegenstand in jeder Küche. (8)", "laenge": 8, "markiert": [[0, 2]]}, {"id": "10w", "nr": 10, "richtung": "waagerecht", "hinweis": "Welches Wiedersehen war jedes Jahr eine Abschiedstournee? (10)", "laenge": 10, "markiert": []}, {"id": "13w", "nr": 13, "richtung": "waagerecht", "hinweis": "Wo hätte Newton statt einer Beule einen Ohrwurm bekommen? (15)", "laenge": 15, "markiert": []}, {"id": "14w", "nr": 14, "richtung": "waagerecht", "hinweis": "Darf bei keinem Fernsehabend fehlen (8)", "laenge": 8, "markiert": []}, {"id": "15w", "nr": 15, "richtung": "waagerecht", "hinweis": "Hier ein Outfit inspiriert von 7 senkrecht zusammenstellen (6)", "laenge": 6, "markiert": [[4, 4]]}, {"id": "16w", "nr": 16, "richtung": "waagerecht", "hinweis": "Landessprachlich korrekte Begrüßung in 2 senkrecht. (4)", "laenge": 4, "markiert": [[0, 3]]}, {"id": "17w", "nr": 17, "richtung": "waagerecht", "hinweis": "Wer liebt dich am meisten? (4)", "laenge": 4, "markiert": []}, {"id": "1s", "nr": 1, "richtung": "senkrecht", "hinweis": "Das Original von diesem Abklatsch. Erscheint wöchentlich. (11)", "laenge": 11, "markiert": [[0, 5], [7, 8]]}, {"id": "2s", "nr": 2, "richtung": "senkrecht", "hinweis": "Wo haben die Reichen und Schönen ihren Stammplatz? (13)", "laenge": 13, "markiert": []}, {"id": "4s", "nr": 4, "richtung": "senkrecht", "hinweis": "Wo kann ein einziges Wort gleich mehrere Personen enttarnen? (9)", "laenge": 9, "markiert": []}, {"id": "6s", "nr": 6, "richtung": "senkrecht", "hinweis": "Wo wird das Alt bald zum Alltag? (11)", "laenge": 11, "markiert": []}, {"id": "7s", "nr": 7, "richtung": "senkrecht", "hinweis": "Rennbahn oder Rapkarriere? Thirst Trap im Zirkuszelt. (10)", "laenge": 10, "markiert": [[3, 7]]}, {"id": "8s", "nr": 8, "richtung": "senkrecht", "hinweis": "Wo zahlte sich Verrat aus, nur nicht für die Verräterin? (10)", "laenge": 10, "markiert": []}, {"id": "11s", "nr": 11, "richtung": "senkrecht", "hinweis": "Wo wird aus einem Kater ein Seepferdchen? (8)", "laenge": 8, "markiert": [[3, 1]]}, {"id": "12s", "nr": 12, "richtung": "senkrecht", "hinweis": "27: tanzen unter Apfelbäumen oder …? (7)", "laenge": 7, "markiert": []}];
+  var A = 'Lk9/JS4gbiQkLkdZTQ8hKydhIDQkLFdBDUYoLH8jMSIgJ08BREsveCwgMicwLHk3S0kNRyI7NTkoeTYsIGokMS8gO08BREs2YyQgICc6NQ9ISUd4Kyo6KTpPAURLLXgpIklJVU9iKCgjD0lDST8wJHk2KCB5NiYnR1lNDzAmN38gJy4oNyx/NihHAUVBKCoxKGMlJCB+R09LRzE4aDc6IGEhLDkjV0ENRiQmeiwtLy0gI2lGRUUPJiw4JDsifjA7JA9JQ0k2IiRgKSskaUdPS0ciP2InJSR6Rz4=', K = 'um-die-ecke';
+  var roh = atob(A), bytes = new Uint8Array(roh.length);
+  for (var i = 0; i < roh.length; i++) bytes[i] = roh.charCodeAt(i) ^ K.charCodeAt(i % K.length);
+  var ANTWORTEN = JSON.parse(new TextDecoder().decode(bytes));
+
+  function lade(id) { try { return JSON.parse(localStorage.getItem('tipp-' + id)) || []; } catch (e) { return []; } }
+  function speichere(id, v) { try { localStorage.setItem('tipp-' + id, JSON.stringify(v)); } catch (e) {} }
+
+  document.querySelectorAll('.frage').forEach(function (el, k) {
+    var f = FRAGEN[k], wort = ANTWORTEN[k], offen = lade(f.id);
+    var knopf = el.querySelector('button'), detail = el.querySelector('.detail');
+    var markiert = {};
+    f.markiert.forEach(function (m) { markiert[m[0]] = m[1]; });
+    detail.innerHTML =
+      '<div class="wort" style="--n:' + f.laenge + '"></div>' +
+      '<div class="aktion"><button class="knopf" type="button">Buchstabe aufdecken</button>' +
+      '<span class="stand" aria-live="polite"></span></div>';
+    var feld = detail.querySelector('.wort'), auf = detail.querySelector('.knopf'),
+        stand = detail.querySelector('.stand');
+    for (var i = 0; i < f.laenge; i++) {
+      var b = document.createElement('div');
+      b.className = 'b' + (i in markiert ? ' s' : '');
+      b.innerHTML = i in markiert ? '<span class="si">' + markiert[i] + '</span>' : '';
+      b.appendChild(document.createTextNode(''));
+      feld.appendChild(b);
+    }
+    function zeige(neu) {
+      offen.forEach(function (i) {
+        var b = feld.children[i];
+        b.lastChild.nodeValue = wort[i];
+        if (i === neu) b.classList.add('neu');
+      });
+      var n = offen.length;
+      stand.textContent = n === f.laenge ? 'Komplett aufgedeckt.' : n + ' von ' + f.laenge + ' aufgedeckt';
+      auf.disabled = n === f.laenge;
+    }
+    zeige();
+    knopf.addEventListener('click', function () {
+      var jetzt = detail.hidden;
+      detail.hidden = !jetzt;
+      knopf.setAttribute('aria-expanded', String(jetzt));
+      if (jetzt) el.setAttribute('data-offen', ''); else el.removeAttribute('data-offen');
+    });
+    auf.addEventListener('click', function () {
+      var zu = [];
+      for (var i = 0; i < f.laenge; i++) if (offen.indexOf(i) < 0) zu.push(i);
+      if (!zu.length) return;
+      var neu = zu[Math.floor(Math.random() * zu.length)];
+      offen.push(neu);
+      speichere(f.id, offen);
+      zeige(neu);
+    });
+  });
+})();
+</script>
+</body>
+</html>

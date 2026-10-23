@@ -17,6 +17,7 @@ Befehle:
 Nur Python-Standardbibliothek. Ausgabe ist HTML/CSS in mm – vektoriell, beliebig skalierbar.
 """
 import argparse
+import base64
 import hashlib
 import html
 import json
@@ -740,8 +741,16 @@ def pruefen(puzzle_pfad, html_pruefen=True):
                'raetsel-loesung.html: nicht alle Buchstaben eingetragen.')
         docs = basis / 'docs'
         if docs.exists():
-            for datei in ('index.html', '404.html', f'{p["url_wort"]}/index.html'):
+            for datei in ('index.html', '404.html', 'tipps/index.html', f'{p["url_wort"]}/index.html'):
                 ok((docs / datei).exists(), f'docs/{datei} fehlt.')
+            tipps = docs / 'tipps' / 'index.html'
+            if tipps.exists():
+                t = tipps.read_text(encoding='utf-8')
+                ok(lw.lower() not in t.lower(), 'docs/tipps/index.html verrät das Lösungswort.')
+                for e in p['waagerecht'] + p['senkrecht']:
+                    ok(e['antwort'] not in t, f'docs/tipps/index.html enthält die Antwort {e["antwort"]} im Klartext.')
+                ok(t.count('class="frage"') == len(p['waagerecht']) + len(p['senkrecht']),
+                   'docs/tipps/index.html: nicht alle Fragen enthalten.')
             # Eingabe- und Fehlerseite dürfen das Wort nicht verraten (nur der Hash steht drin)
             for datei in ('index.html', '404.html'):
                 if (docs / datei).exists():
@@ -1025,6 +1034,8 @@ def soll_hash(p):
 
 
 EINGABE_CSS = """
+.tipp-link{margin:0;font-size:14px;color:var(--text)}
+.tipp-link a{color:var(--ink);font-weight:700;text-underline-offset:3px}
 .eingabe{margin-top:auto;padding-top:64px}
 .eingabe .rahmen{border-top:2px solid var(--ink);padding-top:12px;display:flex;flex-direction:column;gap:14px}
 .label{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.1em}
@@ -1082,6 +1093,7 @@ def eingabe_html(p, cfg_roh):
         <button class="knopf" type="submit">Prüfen →</button>
       </div>
       <p class="meldung" id="meldung" aria-live="polite"></p>
+      <p class="tipp-link"><a href="./tipps/">Hängst du fest? Hier gibt’s Tipps →</a></p>
     </div>
   </form>
 </main>
@@ -1148,6 +1160,154 @@ def eingabe_html(p, cfg_roh):
     }});
   }}
   document.getElementById('form').addEventListener('submit', function (e) {{ e.preventDefault(); pruefe(); }});
+}})();
+</script>
+</body>
+</html>
+"""
+
+
+TIPP_SCHLUESSEL = b'um-die-ecke'
+
+
+def verschleiere(daten):
+    """Antworten nicht im Klartext in den Quelltext schreiben (XOR + Base64 – kein Schutz
+    gegen Entschlossene, aber „Seitenquelltext anzeigen“ verrät nichts auf einen Blick)."""
+    roh = json.dumps(daten, ensure_ascii=False).encode('utf-8')
+    x = bytes(b ^ TIPP_SCHLUESSEL[i % len(TIPP_SCHLUESSEL)] for i, b in enumerate(roh))
+    return base64.b64encode(x).decode('ascii')
+
+
+TIPP_CSS = """
+.zurueck{color:var(--ink);text-decoration:none}
+.zurueck:hover{opacity:.7}
+.liste{margin-top:56px;display:flex;flex-direction:column;gap:40px}
+.gruppe h2{margin:0 0 4px;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.1em}
+.frage{border-top:2px solid var(--ink)}
+.gruppe .frage + .frage{border-top:1px solid #E5E5E5}
+.frage > button{all:unset;box-sizing:border-box;width:100%;display:flex;gap:14px;align-items:baseline;
+  padding:14px 0;cursor:pointer;font-size:16px;line-height:1.45;color:var(--ink)}
+.frage > button:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+.frage .nr{flex:none;width:28px;font-weight:700}
+.frage .text{flex:1}
+.frage .mehr{flex:none;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--text-2)}
+.frage[data-offen] .mehr{color:var(--accent)}
+.detail{padding:4px 0 22px 42px;display:flex;flex-direction:column;gap:16px}
+.detail[hidden]{display:none}
+.wort{display:grid;grid-template-columns:repeat(var(--n),minmax(0,40px));gap:4px}
+.b{position:relative;height:48px;border-bottom:2px solid var(--ink);display:flex;align-items:flex-end;
+  justify-content:center;padding-bottom:4px;font-size:24px;font-weight:700}
+.b.s{border-bottom-color:var(--accent)}
+.b .si{position:absolute;top:2px;left:2px;font-size:10px;font-weight:800;color:var(--accent)}
+.b.neu{animation:auf .5s ease-out}
+@keyframes auf{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
+.aktion{display:flex;align-items:center;flex-wrap:wrap;gap:12px 20px}
+.stand{font-size:14px;color:var(--text-2)}
+.knopf[disabled]{opacity:.35;cursor:default}
+@media (max-width:639px){
+  .liste{margin-top:40px}
+  .detail{padding-left:0}
+  .wort{gap:3px}
+  .b{height:40px;font-size:18px}
+  .b .si{font-size:9px}
+}
+"""
+
+
+def tipps_html(p):
+    loes = {(f['zeile'], f['spalte']): f['index'] for f in p['loesungsfelder']}
+    fragen, antworten = [], []
+    for d, name in ((H, 'waagerecht'), (V, 'senkrecht')):
+        dr, dc = SCHRITT[d]
+        for e in p[name]:
+            markiert = [[i, loes[(e['zeile'] + dr * i, e['spalte'] + dc * i)]]
+                        for i in range(e['laenge']) if (e['zeile'] + dr * i, e['spalte'] + dc * i) in loes]
+            fragen.append({'id': f'{e["nr"]}{name[0]}', 'nr': e['nr'], 'richtung': name,
+                           'hinweis': e['hinweis'], 'laenge': e['laenge'], 'markiert': markiert})
+            antworten.append(e['antwort'])
+    gruppen = ''
+    for name, titel in (('waagerecht', 'Waagerecht'), ('senkrecht', 'Senkrecht')):
+        zeilen = ''.join(
+            f'\n      <div class="frage" data-id="{f["id"]}"><button type="button" aria-expanded="false">'
+            f'<span class="nr">{f["nr"]}</span><span class="text">{esc(f["hinweis"])}</span>'
+            f'<span class="mehr">Tipp</span></button><div class="detail" hidden></div></div>'
+            for f in fragen if f['richtung'] == name)
+        gruppen += f'\n    <section class="gruppe"><h2>{titel}</h2>{zeilen}\n    </section>'
+    daten = json.dumps(fragen, ensure_ascii=False).replace('</', '<\\/')
+    return f"""<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Tipps – Um die Ecke gedacht.</title>
+{FONT_LINK}
+<style>{SEITE_CSS}{EINGABE_CSS.replace('__N__', '8')}{TIPP_CSS}</style>
+</head>
+<body>
+<main class="seite">
+  <div class="kopf"><span>Tipps</span><a class="zurueck" href="../">← Zur Eingabe</a></div>
+  <h1>Kleiner<br>Schubs<span class="punkt">.</span></h1>
+  <p class="intro">Wähl eine Frage. Jeder Klick deckt einen zufälligen Buchstaben auf – so viele, wie du brauchst. Rot unterstrichen sind die Felder fürs Lösungswort.</p>
+  <div class="liste">{gruppen}
+  </div>
+</main>
+<script>
+(function () {{
+  var FRAGEN = {daten};
+  var A = '{verschleiere(antworten)}', K = '{TIPP_SCHLUESSEL.decode()}';
+  var roh = atob(A), bytes = new Uint8Array(roh.length);
+  for (var i = 0; i < roh.length; i++) bytes[i] = roh.charCodeAt(i) ^ K.charCodeAt(i % K.length);
+  var ANTWORTEN = JSON.parse(new TextDecoder().decode(bytes));
+
+  function lade(id) {{ try {{ return JSON.parse(localStorage.getItem('tipp-' + id)) || []; }} catch (e) {{ return []; }} }}
+  function speichere(id, v) {{ try {{ localStorage.setItem('tipp-' + id, JSON.stringify(v)); }} catch (e) {{}} }}
+
+  document.querySelectorAll('.frage').forEach(function (el, k) {{
+    var f = FRAGEN[k], wort = ANTWORTEN[k], offen = lade(f.id);
+    var knopf = el.querySelector('button'), detail = el.querySelector('.detail');
+    var markiert = {{}};
+    f.markiert.forEach(function (m) {{ markiert[m[0]] = m[1]; }});
+    detail.innerHTML =
+      '<div class="wort" style="--n:' + f.laenge + '"></div>' +
+      '<div class="aktion"><button class="knopf" type="button">Buchstabe aufdecken</button>' +
+      '<span class="stand" aria-live="polite"></span></div>';
+    var feld = detail.querySelector('.wort'), auf = detail.querySelector('.knopf'),
+        stand = detail.querySelector('.stand');
+    for (var i = 0; i < f.laenge; i++) {{
+      var b = document.createElement('div');
+      b.className = 'b' + (i in markiert ? ' s' : '');
+      b.innerHTML = i in markiert ? '<span class="si">' + markiert[i] + '</span>' : '';
+      b.appendChild(document.createTextNode(''));
+      feld.appendChild(b);
+    }}
+    function zeige(neu) {{
+      offen.forEach(function (i) {{
+        var b = feld.children[i];
+        b.lastChild.nodeValue = wort[i];
+        if (i === neu) b.classList.add('neu');
+      }});
+      var n = offen.length;
+      stand.textContent = n === f.laenge ? 'Komplett aufgedeckt.' : n + ' von ' + f.laenge + ' aufgedeckt';
+      auf.disabled = n === f.laenge;
+    }}
+    zeige();
+    knopf.addEventListener('click', function () {{
+      var jetzt = detail.hidden;
+      detail.hidden = !jetzt;
+      knopf.setAttribute('aria-expanded', String(jetzt));
+      if (jetzt) el.setAttribute('data-offen', ''); else el.removeAttribute('data-offen');
+    }});
+    auf.addEventListener('click', function () {{
+      var zu = [];
+      for (var i = 0; i < f.laenge; i++) if (offen.indexOf(i) < 0) zu.push(i);
+      if (!zu.length) return;
+      var neu = zu[Math.floor(Math.random() * zu.length)];
+      offen.push(neu);
+      speichere(f.id, offen);
+      zeige(neu);
+    }});
+  }});
 }})();
 </script>
 </body>
@@ -1237,9 +1397,11 @@ def rendern(puzzle_pfad, cfg_roh, basis):
     (docs / p['url_wort'] / 'index.html').write_text(seite_html(p, cfg_roh.get('seite', {})),
                                                      encoding='utf-8')
     (docs / '404.html').write_text(fehlerseite_html(p), encoding='utf-8')
+    (docs / 'tipps').mkdir(exist_ok=True)
+    (docs / 'tipps' / 'index.html').write_text(tipps_html(p), encoding='utf-8')
     (docs / '.nojekyll').write_text('', encoding='utf-8')
     print(f'✓ raetsel.html, raetsel-loesung.html, docs/index.html (Eingabe), '
-          f'docs/{p["url_wort"]}/index.html (Lösung), docs/404.html → {p["url"]}')
+          f'docs/{p["url_wort"]}/index.html (Lösung), docs/tipps/index.html, docs/404.html → {p["url"]}')
 
 
 # --------------------------------------------------------------------------- CLI
