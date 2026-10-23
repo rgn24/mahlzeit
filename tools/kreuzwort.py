@@ -843,8 +843,10 @@ def esc(s):
 
 def blatt_html(p, cfg_roh, mit_loesung):
     blatt = cfg_roh.get('blatt', {})
-    nummer = blatt.get('nummer', 'Nº 01')
-    widmung = 'Lösung' if mit_loesung else blatt.get('widmung', 'Für dich')
+    # Kopf rechts: leere Werte in der Config blenden die Zeile aus; das Lösungsblatt zeigt „Lösung“
+    zeilen = ['Lösung'] if mit_loesung else [z for z in (blatt.get('nummer', 'Nº 01'),
+                                                        blatt.get('widmung', 'Für dich')) if z]
+    meta = f'\n    <div class="meta">{"<br>".join(esc(z) for z in zeilen)}</div>' if zeilen else ''
     raster = p['raster']
     nummern, _, _ = nummeriere(raster)
     loes = {(f['zeile'], f['spalte']): f['index'] for f in p['loesungsfelder']}
@@ -892,8 +894,7 @@ def blatt_html(p, cfg_roh, mit_loesung):
 <body>
 <main class="blatt">
   <header class="kopf">
-    <div class="titel">Um die Ecke<br>gedacht.</div>
-    <div class="meta">{esc(nummer)}<br>{esc(widmung)}</div>
+    <div class="titel">Um die Ecke<br>gedacht.</div>{meta}
   </header>
 
   <div class="raster" role="img" aria-label="Kreuzworträtsel {p['zeilen']} mal {p['spalten']} Felder">
@@ -1058,7 +1059,7 @@ def eingabe_html(p, cfg_roh):
 </head>
 <body>
 <main class="seite">
-  <div class="kopf"><span>{esc(blatt.get('nummer', 'Nº 01'))} · {esc(blatt.get('widmung', 'Für dich'))}</span><span class="status" id="status" aria-live="polite"></span></div>
+  <div class="kopf"><span>{' · '.join(esc(z) for z in (blatt.get('nummer', 'Nº 01'), blatt.get('widmung', 'Für dich')) if z)}</span><span class="status" id="status" aria-live="polite"></span></div>
   <h1>Um die Ecke<br>gedacht<span class="punkt">.</span></h1>
   <p class="intro">Trag das Lösungswort aus dem Rätsel ein – Buchstabe für Buchstabe, in der Reihenfolge der roten Zahlen.</p>
   <form class="eingabe" id="form" autocomplete="off" novalidate>
