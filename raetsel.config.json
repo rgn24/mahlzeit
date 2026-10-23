@@ -92,10 +92,11 @@
     "widmung": ""
   },
   "seite": {
-    "intro": "Du bist um die Ecke gekommen. Hier steht, wie es weitergeht – Platz für deinen Text.",
-    "wann": "Text folgt",
-    "wo": "Text folgt",
-    "was": "Text folgt"
+    "titel": "Happy\nBirthday!",
+    "intro": "Romi,\n\nalles, alles Liebe und Gute zum Geburtstag!\n\nWir haben dich sehr lieb und freuen uns arg, dass wir mittlerweile etwa 25% (and counting) deines Lebens miterleben dürfen.\n\nDas möchten wir gemeinsam mit dir feiern: Dazu laden wir uns zu euch in eure neue Wohnung ein und euch im Gegenzug zum gemeinsamen Essen!\n\nInspiration zur Auswahl der Location folgt nach eurem Umzug – stay tuned.\n\n\nAuf einen baldigen schönen Abend und viele weitere\n\nJan & Lisa",
+    "wann": "tbd",
+    "wo": "tbd",
+    "was": "lecker essen"
   },
   "druck": {
     "hinweis_mm": 3.1,

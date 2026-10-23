@@ -950,6 +950,15 @@ def seite_html(p, texte):
     t = {k: str(texte.get(k, 'Text folgt')) for k in ('intro', 'wann', 'wo', 'was')}
     js = json.dumps(t, ensure_ascii=False, indent=2)
     js = js.replace('</', '<\\/')
+    # Überschrift: \n = Zeilenumbruch, ein Satzzeichen am Ende wird rot (wie der Punkt im Design)
+    zeilen = str(texte.get('titel', 'Richtig\ngedacht.')).split('\n')
+    letzte = zeilen[-1]
+    if letzte[-1:] in '.!?' and letzte:
+        letzte = f'{esc(letzte[:-1])}<span class="punkt">{esc(letzte[-1])}</span>'
+    else:
+        letzte = esc(letzte)
+    h1 = '<br>'.join([esc(z) for z in zeilen[:-1]] + [letzte])
+    titel_text = esc(' '.join(zeilen))
     infos = ''.join(
         f'\n    <div class="info"><span class="nr">0{i + 1}</span><h2>{titel}</h2>'
         f'<p data-text="{key}">{esc(t[key])}</p></div>'
@@ -960,7 +969,7 @@ def seite_html(p, texte):
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
-<title>Richtig gedacht.</title>
+<title>{titel_text}</title>
 <script>
 /* ============================================================
    TEXTE DER LÖSUNGSSEITE – hier einsetzen.
@@ -977,7 +986,7 @@ const TEXTE = {js};
 <body>
 <main class="seite">
   <div class="kopf"><span>{esc(p['loesungswort'])}</span><span class="status">● Gelöst</span></div>
-  <h1>Richtig<br>gedacht<span class="punkt">.</span></h1>
+  <h1>{h1}</h1>
   <p class="intro" data-text="intro">{esc(t['intro'])}</p>
   <section class="infos">{infos}
   </section>
