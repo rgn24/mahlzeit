@@ -23,7 +23,7 @@ Kommt eine andere Antwort in einer Frage vor, in geschweifte Klammern setzen:
 ```bash
 python3 tools/kreuzwort.py alles
 ```
-`alles` = `erzeugen` (→ `puzzle.json`) + `rendern` (→ HTML) + `pruefen`. Einzeln aufrufbar, z. B. nur neue Texte übernehmen:
+`alles` = `erzeugen` (→ `puzzle.json`) + `rendern` (→ HTML) + `pruefen`. **Achtung:** `alles` baut das Raster neu. Nur Hinweise korrigiert? Dann `python3 tools/kreuzwort.py texte` – Raster bleibt gleich. Seiten-Texte (Wann/Wo/Was) übernehmen:
 ```bash
 python3 tools/kreuzwort.py rendern
 ```

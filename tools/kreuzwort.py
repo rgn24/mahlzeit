@@ -10,6 +10,7 @@ Eingabe  (raetsel.config.json):
 Befehle:
   erzeugen  – Raster bauen, Lösungsfelder paaren, puzzle.json schreiben
   pruefen   – puzzle.json (und vorhandene HTML-Dateien) gegenprüfen
+  texte    – nur Hinweise aus der Config übernehmen (Raster bleibt) + rendern
   rendern   – raetsel.html, raetsel-loesung.html und die GitHub-Pages-Seite schreiben
   alles     – erzeugen + rendern + pruefen
 
@@ -796,6 +797,7 @@ body{font-family:'Hanken Grotesk',sans-serif;color:var(--ink);
 .kopf{display:flex;justify-content:space-between;align-items:flex-end;
   border-bottom:0.75mm solid var(--ink);padding-bottom:4.5mm}
 .titel{font-size:12.75mm;font-weight:800;letter-spacing:-.03em;line-height:.95}
+.punkt{color:var(--accent)}
 .meta{font-size:3.75mm;font-weight:500;text-align:right;line-height:1.5;
   text-transform:uppercase;letter-spacing:.08em}
 
@@ -894,7 +896,7 @@ def blatt_html(p, cfg_roh, mit_loesung):
 <body>
 <main class="blatt">
   <header class="kopf">
-    <div class="titel">Um die Ecke<br>gedacht.</div>{meta}
+    <div class="titel">Um die Ecke<br>gedacht<span class="punkt">.</span></div>{meta}
   </header>
 
   <div class="raster" role="img" aria-label="Kreuzworträtsel {p['zeilen']} mal {p['spalten']} Felder">
@@ -1193,6 +1195,27 @@ def fehlerseite_html(p):
 """
 
 
+def texte_uebernehmen(cfg, puzzle_pfad):
+    """Hinweise aus der Config in puzzle.json übernehmen, ohne das Raster neu zu bauen."""
+    p = json.loads(Path(puzzle_pfad).read_text(encoding='utf-8'))
+    eintraege = [(e, d) for d, name in ((H, 'waagerecht'), (V, 'senkrecht')) for e in p[name]]
+    verweise = {e['antwort']: f'{e["nr"]} {RICHTUNG[d]}' for e, d in eintraege}
+    geaendert = 0
+    for e, _ in eintraege:
+        if e['antwort'] not in cfg['hinweise']:
+            raise Fehler(f'{e["antwort"]} steht nicht mehr in der Wortliste – Raster neu erzeugen.')
+        neu = hinweis_text(cfg['hinweise'][e['antwort']], e['antwort'], verweise)
+        geaendert += neu != e['hinweis']
+        e['hinweis'] = neu
+    for name in ('waagerecht', 'senkrecht'):
+        h = spalten_hoehe([e['hinweis'] for e in p[name]])
+        frei = platz_raster_und_hinweise() - p['zeilen'] * p['feld_mm'] - (p['zeilen'] + 1) * LINIE_MM
+        if h > frei:
+            print(f'⚠ {name}: Hinweise ca. {h:.0f} mm, Platz ca. {frei:.0f} mm – Blatt im Browser prüfen.')
+    Path(puzzle_pfad).write_text(json.dumps(p, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
+    print(f'✓ {geaendert} Hinweis(e) aktualisiert, Raster unverändert.')
+
+
 def rendern(puzzle_pfad, cfg_roh, basis):
     p = json.loads(Path(puzzle_pfad).read_text(encoding='utf-8'))
     basis = Path(basis)
@@ -1214,7 +1237,7 @@ def rendern(puzzle_pfad, cfg_roh, basis):
 
 def main(argv=None):
     ap = argparse.ArgumentParser(description='Kreuzworträtsel „Um die Ecke gedacht“')
-    ap.add_argument('befehl', choices=['erzeugen', 'pruefen', 'rendern', 'alles'])
+    ap.add_argument('befehl', choices=['erzeugen', 'texte', 'pruefen', 'rendern', 'alles'])
     ap.add_argument('--config', default=str(ROOT / 'raetsel.config.json'))
     ap.add_argument('--puzzle', default=str(ROOT / 'puzzle.json'))
     ap.add_argument('--ausgabe', default=str(ROOT), help='Zielordner für HTML-Dateien')
@@ -1226,7 +1249,10 @@ def main(argv=None):
         if a.befehl in ('erzeugen', 'alles'):
             cfg = lade_config(a.config)
             erzeugen(cfg, a.puzzle, a.seed, a.versuche)
-        if a.befehl in ('rendern', 'alles'):
+        if a.befehl == 'texte':
+            cfg = lade_config(a.config)
+            texte_uebernehmen(cfg, a.puzzle)
+        if a.befehl in ('rendern', 'alles', 'texte'):
             cfg = lade_config(a.config)
             rendern(a.puzzle, cfg['roh'], a.ausgabe)
         if a.befehl in ('pruefen', 'alles'):
